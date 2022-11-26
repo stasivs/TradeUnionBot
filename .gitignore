@@ -1,0 +1,4 @@
+server/venv
+server/Primer.csv
+server/.idea
+__pycache__/
