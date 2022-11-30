@@ -6,7 +6,7 @@ class StudentSchema(BaseModel):
     institute: str
     course: int
     group: str
-    second_name: str
+    surname: str
     name: str
     sex: Literal["муж.", "жен."]
     financing_form: Literal["бюджет", "контракт"]
