@@ -24,12 +24,12 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     if current_state is None:
         return
     await state.finish()
-    await message.reply('OK', reply_markup=(keyboards.admin_keyboard if message.from_user.id in admin_list else keyboards.student_keyboard))
+    await message.reply('OK', reply_markup=(keyboards.ADMIN_KEYBOARD if message.from_user.id in admin_list else keyboards.STUDENT_KEYBOARD))
 
 
 async def greeting(message: types.Message) -> None:
     """Отлавливает команду /start, выводит соответствующую клавиатуру."""
-    await bot.send_message(message.from_user.id, "Вас приветствует бот профкома!", reply_markup=(keyboards.admin_keyboard if message.from_user.id in admin_list else keyboards.student_keyboard))
+    await bot.send_message(message.from_user.id, "Вас приветствует бот профкома!", reply_markup=(keyboards.ADMIN_KEYBOARD if message.from_user.id in admin_list else keyboards.STUDENT_KEYBOARD))
     await message.delete()
 
 
@@ -44,7 +44,7 @@ async def make_record(message: types.Message) -> None:
 async def get_student_info(message: types.Message) -> None:
     """Отлавливает соответствующий текст кнопки, запускает диалог предоставления ин-фы о студенте."""
     await GetStudentInfoFSM.waiting_pole_name.set()
-    await message.reply('Выберите известное вам поле информации о студенте', reply_markup=keyboards.info_pole_keyboard)
+    await message.reply('Выберите известное вам поле информации о студенте', reply_markup=keyboards.INFO_POLE_KEYBOARD)
 
 
 class MakeRecordFSM(StatesGroup):
@@ -60,7 +60,7 @@ async def obtain_prof_id(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['prof_id'] = message.text
     await MakeRecordFSM.next()
-    await message.reply('Выберите поле, в которое хотите внести изменения', reply_markup=keyboards.change_pole_keyboard)
+    await message.reply('Выберите поле, в которое хотите внести изменения', reply_markup=keyboards.CHANGE_POLE_KEYBOARD)
 
 
 async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
@@ -77,7 +77,7 @@ async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
         data['new_value'] = message.text
     await MakeRecordFSM.next()
     await message.reply(f'Внести изменения: {data["pole_name"]} -> {data["new_value"]} ?',
-                        reply_markup=keyboards.approval_keyboard)
+                        reply_markup=keyboards.APPROVAL_KEYBOARD)
 
 
 async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
@@ -85,9 +85,9 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
     if message.text == 'Да':
         async with state.proxy() as data:
             await request_funcs.redact_student_info(data['prof_id'], data['pole_name'], data['new_value'])
-            await message.reply('Изменения внесены', reply_markup=keyboards.admin_keyboard)
+            await message.reply('Изменения внесены', reply_markup=keyboards.ADMIN_KEYBOARD)
     elif message.text == 'Нет':
-        await message.reply('OK', reply_markup=keyboards.admin_keyboard)
+        await message.reply('OK', reply_markup=keyboards.ADMIN_KEYBOARD)
     await state.finish()
 
 
@@ -121,7 +121,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 Номер профкарты: {stud_info['prof_id']}
 Номер студенческого билета: {stud_info['stud_id']}
 Причина получения МП: {stud_info['reason']}
-    """, reply_markup=keyboards.admin_keyboard)
+    """, reply_markup=keyboards.ADMIN_KEYBOARD)
     await state.finish()
 
 

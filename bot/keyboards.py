@@ -1,31 +1,31 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
-button_mat_help = KeyboardButton('Редактировать информацию о студенте')
-button_get_info = KeyboardButton('Уточнить информацию о студенте')
-button_prof_id = KeyboardButton('Проф карта')
-button_stud_number = KeyboardButton('Студенческий билет')
-button_surname = KeyboardButton('Фамилия студента')
-button_reason = KeyboardButton('Причина мат помощи')
-button_yes = KeyboardButton('Да')
-button_no = KeyboardButton('Нет')
+BUTTON_MAT_HELP = KeyboardButton('Редактировать информацию о студенте')
+BUTTON_GET_INFO = KeyboardButton('Уточнить информацию о студенте')
+BUTTON_PROF_ID = KeyboardButton('Проф карта')
+BUTTON_STUD_NUMBER = KeyboardButton('Студенческий билет')
+BUTTON_SURNAME = KeyboardButton('Фамилия студента')
+BUTTON_REASON = KeyboardButton('Причина мат помощи')
+BUTTON_YES = KeyboardButton('Да')
+BUTTON_NO = KeyboardButton('Нет')
 
-button_get_schedule = KeyboardButton('Узнать расписание профкома')
-button_get_prof_id = KeyboardButton('Узнать номер своей профкарты')
-button_registration = KeyboardButton('Пройти регистрацию')
-
-
-admin_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-change_pole_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-info_pole_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-approval_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
-
-student_keyboard = ReplyKeyboardMarkup(resize_keyboard=True)
+BUTTON_GET_SCHEDULE = KeyboardButton('Узнать расписание профкома')
+BUTTON_GET_PROF_ID = KeyboardButton('Узнать номер своей профкарты')
+BUTTON_REGISTRATION = KeyboardButton('Пройти регистрацию')
 
 
-admin_keyboard.add(button_mat_help).add(button_get_info).add(button_get_schedule).add(button_get_prof_id).add(button_registration)
-change_pole_keyboard.add(button_prof_id).add(button_stud_number).add(button_reason)
-info_pole_keyboard.add(button_prof_id).add(button_stud_number).add(button_surname)
-approval_keyboard.add(button_yes).add(button_no)
+ADMIN_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+CHANGE_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+INFO_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+APPROVAL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
-student_keyboard.add(button_get_schedule).add(button_get_prof_id).add(button_registration)
+STUDENT_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+
+
+ADMIN_KEYBOARD.add(BUTTON_MAT_HELP).add(BUTTON_GET_INFO).add(BUTTON_GET_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON)
+INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME)
+APPROVAL_KEYBOARD.add(BUTTON_YES).add(BUTTON_NO)
+
+STUDENT_KEYBOARD.add(BUTTON_GET_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
