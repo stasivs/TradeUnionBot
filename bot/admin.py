@@ -110,18 +110,23 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
     вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте."""
     async with state.proxy() as data:
         data['value'] = message.text
-        stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'])
-    await message.reply(f"""
-        Институт: {stud_info['inst']}
-Курс: {stud_info['curs']}
-Группа: {stud_info['group']}
-ФИО: {stud_info['fio']}
-Пол: {stud_info['sex']}
-Форма финансирования: {stud_info['financing']}
-Номер профкарты: {stud_info['prof_id']}
-Номер студенческого билета: {stud_info['stud_id']}
-Причина получения МП: {stud_info['reason']}
-    """, reply_markup=keyboards.ADMIN_KEYBOARD)
+        stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'], message)
+    if stud_info:
+        for student in stud_info:
+            await bot.send_message(message.from_user.id, f"""
+                Институт: {student['institute']}
+Курс: {student['course']}
+Группа: {student['group']}
+Фамилия: {student['surname']}
+Имя: {student['name']}
+Пол: {student['sex']}
+Форма финансирования: {student['financing_form']}
+Номер профкарты: {student['profcard']}
+Номер студенческого билета: {student['student_book']}
+Причина получения МП: {student['MP_case']}
+            """, reply_markup=keyboards.ADMIN_KEYBOARD)
+    else:
+        await bot.send_message(message.from_user.id, 'Что-то пошло не так, возможно, вы ошиблись при вводе данных', reply_markup=keyboards.ADMIN_KEYBOARD)
     await state.finish()
 
 

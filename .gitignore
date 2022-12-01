@@ -4,5 +4,5 @@ server/.idea
 __pycache__/
 bot/venv
 bot/config.py
-bot/.idea
+.idea
 

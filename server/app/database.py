@@ -43,10 +43,10 @@ async def add_student(student_data: dict) -> dict:
 
 
 # Retrieve a student by profcard
-async def retrieve_student_by_profcard(profcard: str) -> dict:
+async def retrieve_student_by_profcard(profcard: str) -> list:
     student = await student_collection.find_one({"profcard": profcard})
     if student:
-        return student_helper(student)
+        return [student_helper(student)]
 
 
 # Retrieve a student by surname
@@ -58,7 +58,7 @@ async def retrieve_student_by_surname(surname: str) -> list:
 
 
 # Retrieve a student by student_book
-async def retrieve_student_by_student_book(student_book: str) -> dict:
+async def retrieve_student_by_student_book(student_book: str) -> list:
     student = await student_collection.find_one({"student_book": student_book})
     if student:
-        return student_helper(student)
+        return [student_helper(student)]

@@ -1,3 +1,5 @@
+from config import URL
+
 import requests
 
 
@@ -15,15 +17,36 @@ def get_admin_list() -> list:
     return [1003082911]
 
 
-async def get_student_info(pole_name: str, value: str) -> dict:
+async def get_student_info(pole_name: str, value: str, message) -> list[dict]:
     """Получаем информацию о студенте."""
-    # stud_info = requests.get().json()
-    # return stud_info
-    return {'inst': "ICTMS", 'curs': '3', 'group': '201', 'fio': 'Фролов Илья Антонович', 'sex': 'Муж.',
-            'financing': 'Бюджет', 'prof_id': '20-1901', 'stud_id': '22-Б-07305', 'reason': 'Общежитие'}
+    urls_dict = {'Проф карта': 'by_profcard', 'Фамилия студента': 'by_surname', 'Студенческий билет': 'by_student_book'}
+    pole = urls_dict[pole_name]
+    response = requests.get(f'{URL}/{pole}/{value}').json()
+    if response['code'] == 200:
+        stud_info = response['data']
+        return stud_info
+    else:
+        return []
 
 
-async def redact_student_info(stud_id: str, pole_name: str, new_value: str) -> None:
-    """Редактируем информацию о студенте в бд."""
-    # requests.post()
-    pass
+async def redact_student_info(prof_id: str, pole_name: str, new_value: str) -> None:
+    """Отправляем на сервер номер профкарты, название поля для редактирования и его новое значение."""
+    data = {'prof_id': prof_id, 'pole_name': pole_name, 'new_value': new_value}
+    requests.post(URL, json=data)
+
+
+async def add_student():
+    data = {
+        "institute": "string1",
+        "course": 0,
+        "group": "string",
+        "surname": "string1",
+        "name": "string1",
+        "sex": "муж.",
+        "financing_form": "бюджет",
+        "profcard": "str1ing",
+        "student_book": "stri1ng",
+        "role": "User",
+        "MP_case": "string"
+    }
+    requests.post(URL, json=data)
