@@ -1,4 +1,6 @@
 import motor.motor_asyncio
+from bson import ObjectId
+from bson.errors import InvalidId
 
 # MONGO_DETAILS = "mongodb://localhost:27017"
 MONGO_DETAILS = "mongodb"
@@ -39,7 +41,16 @@ async def retrieve_students():
 async def add_student(student_data: dict) -> dict:
     student = await student_collection.insert_one(student_data)
     new_student = await student_collection.find_one({"_id": student.inserted_id})
-    return student_helper(new_student)
+    return [student_helper(new_student)]
+
+
+async def update_student(id: str, new_data: dict) -> dict:
+    try:
+        await student_collection.update_one({"_id": ObjectId(id)}, {"$set": new_data})
+        updated_student = await student_collection.find_one({"_id": ObjectId(id)})
+        return [student_helper(updated_student)]
+    except InvalidId:
+        return False
 
 
 # Retrieve a student by profcard

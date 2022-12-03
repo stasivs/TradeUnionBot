@@ -1,5 +1,5 @@
 venv/
 server/Primer.csv
 __pycache__/
-bot/config.py
+config.py
 .idea/

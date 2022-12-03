@@ -3,6 +3,7 @@ from fastapi.encoders import jsonable_encoder
 
 from database import (
     add_student,
+    update_student,
     retrieve_students,
     retrieve_student_by_profcard,
     retrieve_student_by_surname,
@@ -11,6 +12,7 @@ from database import (
 from models.student import (
     ResponseModel,
     StudentSchema,
+    UpdateStudentSchema,
     ErrorResponseModel,
 )
 
@@ -22,6 +24,17 @@ async def add_student_data(student: StudentSchema = Body(...)):
     student = jsonable_encoder(student)
     new_student = await add_student(student)
     return ResponseModel(new_student, "Student added successfully.")
+
+
+@router.put('/{id}', response_description="Student data updated")
+async def update_student_data(id: str, student: UpdateStudentSchema = Body(...)):
+    new_data = {key: val for key, val in student.dict().items() if val}
+    if not new_data:
+        return ErrorResponseModel("An error occurred.", 400, "Empty data.")
+    updated_student = await update_student(id, new_data)
+    if updated_student:
+        return ResponseModel(updated_student, "Student updated successfully.")
+    return ErrorResponseModel("An error occurred.", 404, "Student doesn't exist.")
 
 
 @router.get("/", response_description="Students retrieved")
