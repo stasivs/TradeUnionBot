@@ -1,10 +1,9 @@
-from aiogram import Dispatcher
-from aiogram import types
+from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 
-from bot_init import bot, admin_list
+from bot_run import bot, admin_list
 import keyboards
 import request_funcs
 
