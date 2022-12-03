@@ -40,13 +40,5 @@ class UpdateStudentSchema(StudentSchema):
     role: Optional[Literal["User", "Admin"]]
 
 
-def ResponseModel(data, message):
-    return {
-        "data": data,
-        "code": 200,
-        "message": message,
-    }
-
-
-def ErrorResponseModel(error, code, message):
-    return {"error": error, "code": code, "message": message}
+class ResponseModel(BaseModel):
+    data: list[StudentSchema]
