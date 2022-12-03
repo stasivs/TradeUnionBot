@@ -14,7 +14,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 request_key = get_request_key()
 
 
-def start_bot():
+def start_bot() -> None:
     from admin import register_admin_handlers
     from student import register_student_handlers
 
