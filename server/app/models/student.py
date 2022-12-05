@@ -40,5 +40,9 @@ class UpdateStudentSchema(StudentSchema):
     role: Optional[Literal["User", "Admin"]]
 
 
+class ResponseStudentSchema(StudentSchema):
+    id: str
+
+
 class ResponseModel(BaseModel):
-    data: list[StudentSchema]
+    data: list[ResponseStudentSchema]
