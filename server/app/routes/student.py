@@ -1,9 +1,7 @@
-
-from random import choice
-from string import ascii_uppercase
-from multiprocessing import Queue
+import uuid
+import asyncio
 from cryptography.fernet import Fernet
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 
 from database import (
@@ -20,7 +18,7 @@ from models.student import (
 )
 
 router = APIRouter()
-queue = []
+queue = asyncio.Queue(1) # Size of queue. One for processing one query 
 
 @router.post("/", response_description="Student data added into the database")
 async def add_student_data(student: StudentSchema = Body(...)):
@@ -69,28 +67,30 @@ async def get_student_data(student_book):
 
 
 @router.get("/synchronize", response_description="Secret key for detecting bot")
-async def get_secret_key():
-    key = Fernet.generate_key()
-    common_key = Fernet("ENEou4JUwaA0tgBfxUpPgvtOmJW5YQztdwKA4if8vUQ=")
-    check_string = "".join(choice(ascii_uppercase) for i in range(12))
-    secret_check_string = common_key.encrypt(check_string.encode("utf-8"))
-    secret_key = common_key.encrypt(key)
-    check_list_queue = {"key": key
-                        , "check_string": check_string} 
-    check_list_answer = {"secret_key": secret_key
-                        , "secret_check_string": secret_check_string} 
-                
-    queue.append(check_list_queue)
-    return ResponseModel(check_list_answer, "Secret key retrieved successfully")
+async def get_secret_key(background_tasks: BackgroundTasks):
+    # Background task for detecting unused synchronized links
+    background_tasks.add_task(background_check)
+    # Common key. Bot also has it
+    common_key = Fernet("ENEou4JUwaA0tgBfxUpPgvtOmJW5YQztdwKA4if8vUQ=") 
+    url_uuid = uuid.uuid4()
+    secret_url_uuid = common_key.encrypt(url_uuid.bytes)
+    await queue.put(url_uuid)
+    return ResponseModel(secret_url_uuid, "Secret key retrieved successfully")
 
-async def check(secret_check_string):
-    item = queue.pop()
-    key = Fernet(item["key"])
+async def check(url_uuid):
     try:
-        check_string = key.decrypt(secret_check_string)
+        item = queue.get_nowait()
     except:
         return False
-    if item["check_string"] == check_string.decode("utf-8"):
+    queue.task_done()
+    if str(item) == url_uuid:
         return True
     else:
         return False
+
+async def background_check():
+    # Life time of unique link
+    await asyncio.sleep(0.5)   
+    if queue.full():
+        queue.get_nowait()
+        queue.task_done()
