@@ -1,4 +1,6 @@
 import motor.motor_asyncio
+from bson import ObjectId
+from bson.errors import InvalidId
 
 # MONGO_DETAILS = "mongodb://localhost:27017"
 MONGO_DETAILS = "mongodb"
@@ -28,7 +30,7 @@ def student_helper(student) -> dict:
 
 
 # Retrieve all students
-async def retrieve_students():
+async def retrieve_students() -> list:
     students = []
     async for student in student_collection.find():
         students.append(student_helper(student))
@@ -36,21 +38,30 @@ async def retrieve_students():
 
 
 # Add a new student
-async def add_student(student_data: dict) -> dict:
+async def add_student(student_data: dict) -> list[dict]:
     student = await student_collection.insert_one(student_data)
     new_student = await student_collection.find_one({"_id": student.inserted_id})
-    return student_helper(new_student)
+    return [student_helper(new_student)]
+
+
+async def update_student(id: str, new_data: dict) -> list[dict]:
+    try:
+        await student_collection.update_one({"_id": ObjectId(id)}, {"$set": new_data})
+        updated_student = await student_collection.find_one({"_id": ObjectId(id)})
+        return [student_helper(updated_student)]
+    except InvalidId:
+        return []
 
 
 # Retrieve a student by profcard
-async def retrieve_student_by_profcard(profcard: str) -> dict:
+async def retrieve_student_by_profcard(profcard: str) -> list[dict]:
     student = await student_collection.find_one({"profcard": profcard})
     if student:
-        return student_helper(student)
+        return [student_helper(student)]
 
 
 # Retrieve a student by surname
-async def retrieve_student_by_surname(surname: str) -> list:
+async def retrieve_student_by_surname(surname: str) -> list[dict]:
     students = []
     async for student in student_collection.find({"surname": surname}):
         students.append(student_helper(student))
@@ -58,7 +69,7 @@ async def retrieve_student_by_surname(surname: str) -> list:
 
 
 # Retrieve a student by student_book
-async def retrieve_student_by_student_book(student_book: str) -> dict:
+async def retrieve_student_by_student_book(student_book: str) -> list[dict]:
     student = await student_collection.find_one({"student_book": student_book})
     if student:
-        return student_helper(student)
+        return [student_helper(student)]
