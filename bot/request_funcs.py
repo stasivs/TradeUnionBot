@@ -1,13 +1,20 @@
 from config import URL
 
 import requests
+import uuid
+import requests
+from cryptography.fernet import Fernet
 
+#COMMON_KEY = os.environ.get("COMMONT_KEY") 
 
-def get_request_key() -> str:
-    """Получаем ключ для последующих запросов."""
-    # key = requests.get()
-    # return key
-    pass
+def get_request_key(URL, pole) -> str:
+    """Получаем токен для последующих запросов."""
+    answer = requests.get(f"http://{URL}/{pole}") # Synchronize URL
+    json = answer.json()
+    secret_uuid = json["data"][0]
+    common_key = Fernet("ENEou4JUwaA0tgBfxUpPgvtOmJW5YQztdwKA4if8vUQ=") # Here is COMMON_KEY
+    token = common_key.decrypt(secret_uuid) 
+    return uuid.UUID(token.hex())
 
 
 def get_admin_list() -> list:
