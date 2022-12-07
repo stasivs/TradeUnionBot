@@ -27,87 +27,102 @@ queue = asyncio.Queue(1) # Size of queue. One for processing one query
              status_code=status.HTTP_201_CREATED,
              response_model=ResponseModel)
 async def add_student_data(student: StudentSchema = Body(...)) -> dict:
+    token = student.token
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
+    access = await check(token)    
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     student = jsonable_encoder(student)
     new_student = await add_student(student)
     return {'data': new_student}
 
 
-@router.put('/{id}+{token}', response_description="Student data updated",
+@router.put('/{id}', response_description="Student data updated",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
+            response_model=ResponseModel,
+            token=None)
 async def update_student_data(id: str, token, student: UpdateStudentSchema = Body(...)) -> dict:
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
-    if access:
-        new_data = {key: val for key, val in student.dict().items() if val}
-        if not new_data:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty data.")
-        updated_student = await update_student(id, new_data)
-        if not updated_student:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-        return {'data': updated_student}
-    else:
-        return ResponseModel("Access denied", "Token is invalid") 
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+    new_data = {key: val for key, val in student.dict().items() if val}
+    if not new_data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty data.")
+    updated_student = await update_student(id, new_data)
+    if not updated_student:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return {'data': updated_student}
 
 
-@router.get("/+{token}", response_description="Students retrieved",
+
+@router.get("/", response_description="Students retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
+            response_model=ResponseModel,
+            token=None)
 async def get_students(token) -> dict:
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
-    if access:
-        students = await retrieve_students()
-        if not students:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Students doesn't exist.")
-        return {'data': students}
-    else:
-        return ResponseModel("Access denied", "Token is invalid") 
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+    students = await retrieve_students()
+    if not students:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Students doesn't exist.")
+    return {'data': students}
 
-
-
-@router.get("/by_profcard/{profcard}+{token}", response_description="Student data retrieved",
+@router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
+            response_model=ResponseModel,
+            token=None)
 async def get_student_data(profcard: str, token) -> dict:
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
-    if access:
-        if not compile(r'\d{2}-\d{4}').match(profcard):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profcard is not valid.")
-        student = await retrieve_student_by_profcard(profcard)
-        if not student:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-        return {'data': student}
-    else:
-        return ResponseModel("Access denied", "Token is invalid") 
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+    if not compile(r'\d{2}-\d{4}').match(profcard):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profcard is not valid.")
+    student = await retrieve_student_by_profcard(profcard)
+    if not student:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return {'data': student}
 
 
-@router.get("/by_surname/{surname}+{token}", response_description="Student data retrieved",
+@router.get("/by_surname/{surname}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
+            response_model=ResponseModel,
+            token=None)
 async def get_student_data(surname: str, token) -> dict:
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
-    if access:
-        student = await retrieve_student_by_surname(surname)
-        if not student:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-        return {'data': student}
-    else:
-        return ResponseModel("Access denied", "Token is invalid")    
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+    student = await retrieve_student_by_surname(surname)
+    if not student:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return {'data': student}
 
 
-@router.get("/by_student_book/{student_book}+{token}", response_description="Student data retrieved",
+@router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
+            response_model=ResponseModel,
+            token=None)
 async def get_student_data(student_book: str, token) -> dict:
-    access = await check(token)    
-    if access:
-        if not compile(r'\d{2}-\w-\d{5}').match(student_book):
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Student_book is not valid.")
-        student = await retrieve_student_by_student_book(student_book)
-        if not student:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-        return {'data': student}
-    else:
-        return ResponseModel("Access denied", "Token is invalid")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")  
+    access = await check(token)  
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+    if not compile(r'\d{2}-\w-\d{5}').match(student_book):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Student_book is not valid.")
+    student = await retrieve_student_by_student_book(student_book)
+    if not student:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return {'data': student}
 
 
 @router.get("/synchronize", response_description="Secret key for detecting bot")
