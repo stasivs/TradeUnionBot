@@ -1,4 +1,5 @@
 from config import URL
+from common_key import COMMON_KEY
 
 import requests
 import uuid
@@ -12,7 +13,7 @@ def get_request_key(URL, pole) -> str:
     answer = requests.get(f"http://{URL}/{pole}") # Synchronize URL
     json = answer.json()
     secret_uuid = json["data"][0]
-    common_key = Fernet("ENEou4JUwaA0tgBfxUpPgvtOmJW5YQztdwKA4if8vUQ=") # Here is COMMON_KEY
+    common_key = Fernet(COMMON_KEY) # Here is COMMON_KEY
     token = common_key.decrypt(secret_uuid) 
     return uuid.UUID(token.hex())
 

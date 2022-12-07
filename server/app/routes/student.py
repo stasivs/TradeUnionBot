@@ -1,3 +1,5 @@
+from common_key import COMMON_KEY
+
 from fastapi import APIRouter, Body, status, HTTPException, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from re import compile
@@ -130,7 +132,7 @@ async def get_secret_key(background_tasks: BackgroundTasks):
     # Background task for detecting unused synchronized links
     background_tasks.add_task(background_check)
     # Common key. Bot also has it
-    common_key = Fernet("ENEou4JUwaA0tgBfxUpPgvtOmJW5YQztdwKA4if8vUQ=") # Here is COMMON_KEY 
+    common_key = Fernet(COMMON_KEY) # Here is COMMON_KEY 
     url_uuid = uuid.uuid4()
     secret_url_uuid = common_key.encrypt(url_uuid.bytes)
     await queue.put(url_uuid)

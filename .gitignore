@@ -3,3 +3,4 @@ server/Primer.csv
 __pycache__/
 config.py
 .idea/
+common_key.py
