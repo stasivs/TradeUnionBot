@@ -22,17 +22,18 @@ from models.student import (
 )
 
 router = APIRouter()
-queue = asyncio.Queue(1) # Size of queue. One for processing one query
-#COMMON_KEY = os.environ.get("COMMONT_KEY") 
+queue = asyncio.Queue(1)  # Size of queue. One for processing one query
+
+
+# COMMON_KEY = os.environ.get("COMMONT_KEY")
 
 @router.post("/", response_description="Student data added into the database",
              status_code=status.HTTP_201_CREATED,
              response_model=ResponseModel)
-async def add_student_data(student: StudentSchema = Body(...)) -> dict:
-    token = student.token
+async def add_student_data(student: StudentSchema = Body(...), token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
-    access = await check(token)    
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     student = jsonable_encoder(student)
@@ -42,12 +43,11 @@ async def add_student_data(student: StudentSchema = Body(...)) -> dict:
 
 @router.put('/{id}', response_description="Student data updated",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def update_student_data(id: str, token, student: UpdateStudentSchema = Body(...)) -> dict:
+            response_model=ResponseModel)
+async def update_student_data(id: str, student: UpdateStudentSchema = Body(...), token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
-    access = await check(token)    
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     new_data = {key: val for key, val in student.dict().items() if val}
@@ -59,15 +59,13 @@ async def update_student_data(id: str, token, student: UpdateStudentSchema = Bod
     return {'data': updated_student}
 
 
-
 @router.get("/", response_description="Students retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_students(token) -> dict:
+            response_model=ResponseModel)
+async def get_students(token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
-    access = await check(token)    
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     students = await retrieve_students()
@@ -75,14 +73,14 @@ async def get_students(token) -> dict:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Students doesn't exist.")
     return {'data': students}
 
+
 @router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(profcard: str, token) -> dict:
+            response_model=ResponseModel)
+async def get_student_data(profcard: str, token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
-    access = await check(token)    
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     if not compile(r'\d{2}-\d{4}').match(profcard):
@@ -95,12 +93,11 @@ async def get_student_data(profcard: str, token) -> dict:
 
 @router.get("/by_surname/{surname}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(surname: str, token) -> dict:
+            response_model=ResponseModel)
+async def get_student_data(surname: str, token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
-    access = await check(token)    
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     student = await retrieve_student_by_surname(surname)
@@ -111,12 +108,11 @@ async def get_student_data(surname: str, token) -> dict:
 
 @router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(student_book: str, token) -> dict:
+            response_model=ResponseModel)
+async def get_student_data(student_book: str, token: str = None) -> dict:
     if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")  
-    access = await check(token)  
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
     if not access:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
     if not compile(r'\d{2}-\w-\d{5}').match(student_book):
@@ -132,7 +128,7 @@ async def get_secret_key(background_tasks: BackgroundTasks):
     # Background task for detecting unused synchronized links
     background_tasks.add_task(background_check)
     # Common key. Bot also has it
-    common_key = Fernet(COMMON_KEY) # Here is COMMON_KEY 
+    common_key = Fernet(COMMON_KEY)  # Here is COMMON_KEY
     url_uuid = uuid.uuid4()
     secret_url_uuid = common_key.encrypt(url_uuid.bytes)
     await queue.put(url_uuid)
@@ -153,8 +149,7 @@ async def check(url_uuid):
 
 async def background_check():
     # Life time of unique link
-    await asyncio.sleep(0.5)   
+    await asyncio.sleep(0.5)
     if queue.full():
         queue.get_nowait()
         queue.task_done()
-
