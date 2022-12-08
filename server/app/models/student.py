@@ -18,15 +18,17 @@ class StudentSchema(BaseModel):
 
     @validator('profcard')
     def prfcard_validator(cls, value):
-        if not compile(r'\d{2}-\d{4}').match(value):
-            raise ValueError('Profcard is not valid')
-        return value
+        if value:
+            if not compile(r'\d{2}-\d{4}').match(value):
+                raise ValueError('Profcard is not valid')
+            return value
 
     @validator('student_book')
     def student_book_validator(cls, value):
-        if not compile(r'\d{2}-\w-\d{5}').match(value):
-            raise ValueError('Student_book is not valid')
-        return value
+        if value:
+            if not compile(r'\d{2}-\w-\d{5}').match(value):
+                raise ValueError('Student_book is not valid')
+            return value
 
 
 class UpdateStudentSchema(StudentSchema):
@@ -46,3 +48,11 @@ class ResponseStudentSchema(StudentSchema):
 
 class ResponseModel(BaseModel):
     data: list[ResponseStudentSchema]
+
+
+class ManyStudentModel(BaseModel):
+    data: list[StudentSchema]
+
+
+class ResponseManyStudentModel(BaseModel):
+    students_added_counter: int

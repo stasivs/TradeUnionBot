@@ -9,11 +9,14 @@ from database import (
     retrieve_student_by_profcard,
     retrieve_student_by_surname,
     retrieve_student_by_student_book,
+    add_many_student,
 )
 from models.student import (
     ResponseModel,
     StudentSchema,
     UpdateStudentSchema,
+    ManyStudentModel,
+    ResponseManyStudentModel,
 )
 
 router = APIRouter()
@@ -26,6 +29,17 @@ async def add_student_data(student: StudentSchema = Body(...)) -> dict:
     student = jsonable_encoder(student)
     new_student = await add_student(student)
     return {'data': new_student}
+
+
+@router.post("/add_many", response_description="Students data list added into the database",
+             status_code=status.HTTP_201_CREATED,
+             response_model=ResponseManyStudentModel)
+async def add_student_data(students: ManyStudentModel = Body(...)) -> dict:
+    students = jsonable_encoder(students)
+    result = await add_many_student(students['data'])
+    if not result['counter']:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Data error.")
+    return {'students_added_counter': result['counter']}
 
 
 @router.put('/{id}', response_description="Student data updated",

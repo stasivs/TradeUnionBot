@@ -44,6 +44,12 @@ async def add_student(student_data: dict) -> list[dict]:
     return [student_helper(new_student)]
 
 
+async def add_many_student(students_data_list: list[dict]) -> dict:
+    students = await student_collection.insert_many(students_data_list)
+    counter = len(students.inserted_ids)
+    return {'counter': counter}
+
+
 async def update_student(id: str, new_data: dict) -> list[dict]:
     try:
         await student_collection.update_one({"_id": ObjectId(id)}, {"$set": new_data})
