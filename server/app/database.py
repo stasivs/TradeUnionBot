@@ -26,6 +26,7 @@ def student_helper(student) -> dict:
         "student_book": student["student_book"],
         "role": student["role"],
         "MP_case": student["MP_case"],
+        "telegram_id": student["telegram_id"],
     }
 
 
@@ -79,3 +80,9 @@ async def retrieve_student_by_student_book(student_book: str) -> list[dict]:
     student = await student_collection.find_one({"student_book": student_book})
     if student:
         return [student_helper(student)]
+
+
+async def get_role_from_db(telegram_id: str) -> dict:
+    student = await student_collection.find_one({"telegram_id": telegram_id})
+    if student:
+        return {'role': student['role']}

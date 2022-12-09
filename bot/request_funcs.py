@@ -1,6 +1,9 @@
 from config import URL
 
 import requests
+from redis import asyncio as aioredis
+
+redis = aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
 
 
 def get_request_key() -> str:
@@ -10,11 +13,22 @@ def get_request_key() -> str:
     pass
 
 
-def get_admin_list() -> list:
-    """Получаем список id админов с сервера."""
-    # admin_list = requests.get()
-    # return admin_list
-    return [1003082911]
+async def is_student_admin(telegram_id: int) -> bool:
+    """Проверяем админ ли студент."""
+    role = await redis.get(telegram_id)
+    if not role:
+        role = get_student_role(telegram_id)
+        await redis.set(telegram_id, role, 60 * 60 * 24)
+    return True if role == 'Admin' else False
+
+
+def get_student_role(telegram_id: int) -> str:
+    """Получаем роль студента с сервера."""
+    response = requests.get(f'{URL}/get_role/{telegram_id}')
+    if response.status_code == 200:
+        student_role = response.json()
+        return student_role['role']
+    return 'No_role'
 
 
 async def get_student_info(pole_name: str, value: str, message) -> list[dict]:

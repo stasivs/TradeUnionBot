@@ -5,10 +5,8 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 from request_funcs import get_request_key
 
-from request_funcs import get_admin_list
 from config import TOKEN
 
-admin_list = get_admin_list()
 bot = Bot(TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 request_key = get_request_key()

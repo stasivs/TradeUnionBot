@@ -10,6 +10,7 @@ from database import (
     retrieve_student_by_surname,
     retrieve_student_by_student_book,
     add_many_student,
+    get_role_from_db,
 )
 from models.student import (
     ResponseModel,
@@ -97,3 +98,13 @@ async def get_student_data(student_book: str) -> dict:
     if not student:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
     return {'data': student}
+
+
+@router.get('/get_role/{telegram_id}', response_description="Student role retrieved",
+            status_code=status.HTTP_200_OK,
+            response_model=dict)
+async def get_role(telegram_id: str) -> dict:
+    student_role = await get_role_from_db(telegram_id)
+    if not student_role:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return student_role

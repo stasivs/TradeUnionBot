@@ -3,15 +3,16 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot_run import bot, admin_list
+from bot_run import bot
 import keyboards
 import request_funcs
 
 
 def admin_require(func):
     """Декоратор - проверка на админа"""
+
     async def wrapper(message: types.Message):
-        if message.from_user.id in admin_list:
+        if await request_funcs.is_student_admin(message.from_user.id):
             await func(message)
 
     return wrapper
@@ -23,14 +24,16 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     if current_state is None:
         return
     await state.finish()
-    await message.reply('OK', reply_markup=(keyboards.ADMIN_KEYBOARD if message.from_user.id in admin_list
+    await message.reply('OK', reply_markup=(keyboards.ADMIN_KEYBOARD
+                                            if await request_funcs.is_student_admin(message.from_user.id)
                                             else keyboards.STUDENT_KEYBOARD))
 
 
 async def greeting(message: types.Message) -> None:
     """Отлавливает команду /start, выводит соответствующую клавиатуру."""
     await bot.send_message(message.from_user.id, "Вас приветствует бот профкома!",
-                           reply_markup=(keyboards.ADMIN_KEYBOARD if message.from_user.id in admin_list
+                           reply_markup=(keyboards.ADMIN_KEYBOARD
+                                         if await request_funcs.is_student_admin(message.from_user.id)
                                          else keyboards.STUDENT_KEYBOARD))
     await message.delete()
 
@@ -128,8 +131,9 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
             if response:
                 await message.reply('Изменения внесены', reply_markup=keyboards.ADMIN_KEYBOARD)
             else:
-                await bot.send_message(message.from_user.id, 'Что-то пошло не так, возможно, вы ошиблись при вводе данных',
-                               reply_markup=keyboards.ADMIN_KEYBOARD)
+                await bot.send_message(message.from_user.id,
+                                       'Что-то пошло не так, возможно, вы ошиблись при вводе данных',
+                                       reply_markup=keyboards.ADMIN_KEYBOARD)
     elif message.text == 'Нет':
         await message.reply('OK', reply_markup=keyboards.ADMIN_KEYBOARD)
     await state.finish()
@@ -142,7 +146,9 @@ def register_admin_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(get_student_info, text='Выбрать студента', state=None)
     dp.register_message_handler(obtain_pole_name, content_types=['text'], state=GetStudentInfoFSM.waiting_pole_name)
     dp.register_message_handler(obtain_value, content_types=['text'], state=GetStudentInfoFSM.waiting_value)
-    dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '), state='*')
-    dp.register_message_handler(obtain_change_pole, content_types=['text'], state=RedactStudentInfoFSM.waiting_change_pole)
+    dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
+                                       state='*')
+    dp.register_message_handler(obtain_change_pole, content_types=['text'],
+                                state=RedactStudentInfoFSM.waiting_change_pole)
     dp.register_message_handler(obtain_new_value, content_types=['text'], state=RedactStudentInfoFSM.waiting_new_value)
     dp.register_message_handler(obtain_confirm, content_types=['text'], state=RedactStudentInfoFSM.waiting_confirm)
