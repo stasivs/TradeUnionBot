@@ -15,7 +15,6 @@ class StudentSchema(BaseModel):
     student_book: Optional[str]
     role: Literal["User", "Admin"]
     MP_case: Optional[str]
-    token: str
 
     @validator('profcard')
     def prfcard_validator(cls, value):
