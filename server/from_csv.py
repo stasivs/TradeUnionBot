@@ -1,7 +1,7 @@
 import asyncio
 import motor.motor_asyncio
 
-MONGO_DETAILS = "mongodb://localhost:27017"
+MONGO_DETAILS = "mongodb://127.0.0.1:27017"
 # MONGO_DETAILS = "mongodb"
 
 
@@ -13,7 +13,7 @@ student_collection = database.get_collection("students_collection")
 
 
 async def add_to_database():
-    with open(file='Primer.csv') as file:
+    with open(file='../Primer.csv') as file:
         file_data = file
         next(file_data)
         next(file_data)
@@ -34,8 +34,8 @@ async def add_to_database():
             })
     return 'Done!'
 
-
-loop = asyncio.get_event_loop()
-tasks = [loop.create_task(add_to_database())]
-loop.run_until_complete(asyncio.wait(tasks))
-loop.close()
+asyncio.run(add_to_database())
+#loop = asyncio.get_event_loop()
+#tasks = [loop.create_task(add_to_database())]
+#loop.run_until_complete(asyncio.wait(tasks))
+#loop.close()

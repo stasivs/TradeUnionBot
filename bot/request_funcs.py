@@ -8,11 +8,11 @@ from cryptography.fernet import Fernet
 
 #COMMON_KEY = os.environ.get("COMMONT_KEY") 
 
-def get_request_key(URL, pole) -> str:
+def get_request_key(pole="synchronize") -> str:
     """Получаем токен для последующих запросов."""
-    answer = requests.get(f"http://{URL}/{pole}") # Synchronize URL
+    answer = requests.get(f"{URL}/{pole}") # Synchronize URL
     json = answer.json()
-    secret_uuid = json["data"][0]
+    secret_uuid = json["data"]
     common_key = Fernet(COMMON_KEY) # Here is COMMON_KEY
     token = common_key.decrypt(secret_uuid) 
     return uuid.UUID(token.hex())
@@ -22,14 +22,16 @@ def get_admin_list() -> list:
     """Получаем список id админов с сервера."""
     # admin_list = requests.get()
     # return admin_list
-    return [1003082911]
+    return [312907124]
 
 
 async def get_student_info(pole_name: str, value: str, message) -> list[dict]:
     """Получаем информацию о студенте."""
     urls_dict = {'Проф карта': 'by_profcard', 'Фамилия студента': 'by_surname', 'Студенческий билет': 'by_student_book'}
     pole = urls_dict[pole_name]
-    response = requests.get(f'{URL}/{pole}/{value}').json()
+    token = get_request_key()
+    params = {"token": token}
+    response = requests.get(f'{URL}/{pole}/{value}', params=params).json()
     if response.get('data'):
         stud_info = response['data']
         return stud_info
@@ -42,7 +44,9 @@ async def redact_student_info(id: str, pole_name: str, new_value: str) -> list[d
     urls_dict = {'Проф карта': 'profcard', 'Причина мат помощи': 'MP_case', 'Студенческий билет': 'student_book'}
     pole = urls_dict[pole_name]
     data = {pole: new_value}
-    response = requests.put(f'{URL}/{id}', json=data).json()
+    token = get_request_key()
+    params = {"token": token}
+    response = requests.put(f'{URL}/{id}', params=params, json=data).json()
     print(response)
     if response.get('data'):
         stud_info = response['data']

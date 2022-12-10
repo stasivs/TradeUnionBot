@@ -28,7 +28,7 @@ queue = asyncio.Queue(1) # Size of queue. One for processing one query
 @router.post("/", response_description="Student data added into the database",
              status_code=status.HTTP_201_CREATED,
              response_model=ResponseModel)
-async def add_student_data(student: StudentSchema = Body(...)) -> dict:
+async def add_student_data(student: StudentSchema = Body(...), token: str = None) -> dict:
     token = student.token
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
@@ -42,9 +42,8 @@ async def add_student_data(student: StudentSchema = Body(...)) -> dict:
 
 @router.put('/{id}', response_description="Student data updated",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def update_student_data(id: str, token, student: UpdateStudentSchema = Body(...)) -> dict:
+            response_model=ResponseModel)
+async def update_student_data(id: str, student: UpdateStudentSchema = Body(...), token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
@@ -62,9 +61,8 @@ async def update_student_data(id: str, token, student: UpdateStudentSchema = Bod
 
 @router.get("/", response_description="Students retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_students(token) -> dict:
+            response_model=ResponseModel)
+async def get_students(token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
@@ -76,10 +74,8 @@ async def get_students(token) -> dict:
     return {'data': students}
 
 @router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(profcard: str, token) -> dict:
+            status_code=status.HTTP_200_OK)
+async def get_student_data(profcard: str, token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
@@ -95,9 +91,8 @@ async def get_student_data(profcard: str, token) -> dict:
 
 @router.get("/by_surname/{surname}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(surname: str, token) -> dict:
+            response_model=ResponseModel)
+async def get_student_data(surname: str, token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.") 
     access = await check(token)    
@@ -111,9 +106,8 @@ async def get_student_data(surname: str, token) -> dict:
 
 @router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            response_model=ResponseModel,
-            token=None)
-async def get_student_data(student_book: str, token) -> dict:
+            response_model=ResponseModel)
+async def get_student_data(student_book: str, token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")  
     access = await check(token)  
@@ -136,7 +130,7 @@ async def get_secret_key(background_tasks: BackgroundTasks):
     url_uuid = uuid.uuid4()
     secret_url_uuid = common_key.encrypt(url_uuid.bytes)
     await queue.put(url_uuid)
-    return ResponseModel(secret_url_uuid, "Secret key retrieved successfully")
+    return {'data': secret_url_uuid}
 
 
 async def check(url_uuid):
