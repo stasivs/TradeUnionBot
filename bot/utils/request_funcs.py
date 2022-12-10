@@ -1,4 +1,4 @@
-from config import URL
+from bot.config import URL
 
 import requests
 from redis import asyncio as aioredis
@@ -57,18 +57,22 @@ async def redact_student_info(id: str, pole_name: str, new_value: str) -> list[d
         return []
 
 
-async def add_student():
-    data = {
-        "institute": "string1",
-        "course": 0,
-        "group": "string",
-        "surname": "string1",
-        "name": "string1",
-        "sex": "муж.",
-        "financing_form": "бюджет",
-        "profcard": "str1ing",
-        "student_book": "stri1ng",
-        "role": "User",
-        "MP_case": "string"
-    }
-    requests.post(URL, json=data)
+# async def add_student():
+#     data = {
+#         "institute": "string1",
+#         "course": 0,
+#         "group": "string",
+#         "surname": "string1",
+#         "name": "string1",
+#         "sex": "муж.",
+#         "financing_form": "бюджет",
+#         "profcard": "str1ing",
+#         "student_book": "stri1ng",
+#         "role": "User",
+#         "MP_case": "string"
+#     }
+#     requests.post(URL, json=data)
+
+
+async def add_many_student_data(data: list[dict]) -> dict:
+    return requests.post(f'{URL}/add_many', json={'data': data}).json()

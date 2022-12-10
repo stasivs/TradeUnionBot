@@ -3,19 +3,9 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot_run import bot
-import keyboards
-import request_funcs
-
-
-def admin_require(func):
-    """Декоратор - проверка на админа"""
-
-    async def wrapper(message: types.Message):
-        if await request_funcs.is_student_admin(message.from_user.id):
-            await func(message)
-
-    return wrapper
+from bot.bot_run import bot
+from bot.utils import keyboards, request_funcs
+from bot.utils.admin_require_wrapper import admin_require
 
 
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
