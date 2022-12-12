@@ -1,5 +1,5 @@
 from aiogram import types
-from bot.utils.request_funcs import is_student_admin
+from utils.request_funcs import is_student_admin
 
 
 def admin_require(func):

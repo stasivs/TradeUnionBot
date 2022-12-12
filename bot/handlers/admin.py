@@ -3,9 +3,9 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
 
-from bot.bot_run import bot
-from bot.utils import keyboards, request_funcs
-from bot.utils.admin_require_wrapper import admin_require
+from bot_run import bot
+from utils import keyboards, request_funcs
+from utils.admin_require_wrapper import admin_require
 
 
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:

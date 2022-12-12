@@ -3,7 +3,7 @@ from aiogram.utils import executor
 from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from bot.utils.request_funcs import get_request_key
+from utils.request_funcs import get_request_key
 
 from config import TOKEN
 
@@ -13,9 +13,9 @@ request_key = get_request_key()
 
 
 def start_bot() -> None:
-    from bot.handlers.admin import register_admin_handlers
-    from bot.handlers.student import register_student_handlers
-    from bot.handlers.add_students_data import register_add_students_data_handlers
+    from handlers.admin import register_admin_handlers
+    from handlers.student import register_student_handlers
+    from handlers.add_students_data import register_add_students_data_handlers
 
     register_admin_handlers(dp)
     register_student_handlers(dp)

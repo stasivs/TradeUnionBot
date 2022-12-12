@@ -3,8 +3,8 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 
-from bot.bot_run import bot
-from bot.utils import keyboards, request_funcs
+from bot_run import bot
+from utils import keyboards, request_funcs
 
 
 async def get_schedule(message: types.Message) -> None:

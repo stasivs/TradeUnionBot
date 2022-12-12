@@ -1,10 +1,10 @@
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from bot.bot_run import bot
-from bot.utils.admin_require_wrapper import admin_require
-from bot.utils.csv_parser import csv_parser
-from bot.utils.request_funcs import add_many_student_data
+from bot_run import bot
+from utils.admin_require_wrapper import admin_require
+from utils.csv_parser import csv_parser
+from utils.request_funcs import add_many_student_data
 
 
 class AddStudentInfoFSM(StatesGroup):

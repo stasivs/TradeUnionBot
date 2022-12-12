@@ -1,9 +1,10 @@
-from bot.config import URL
+from config import URL
 
 import requests
 from redis import asyncio as aioredis
 
 redis = aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
+# redis = aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
 
 
 def get_request_key() -> str:
