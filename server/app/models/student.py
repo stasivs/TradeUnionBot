@@ -13,7 +13,7 @@ class StudentSchema(BaseModel):
     financing_form: Literal["бюджет", "контракт"]
     profcard: Optional[str]
     student_book: Optional[str]
-    role: Literal["User", "Admin"]
+    role: Literal["User", "Admin", "SuperAdmin"]
     MP_case: Optional[str]
     telegram_id: Optional[str]
 
@@ -40,7 +40,7 @@ class UpdateStudentSchema(StudentSchema):
     name: Optional[str]
     sex: Optional[Literal["муж.", "жен."]]
     financing_form: Optional[Literal["бюджет", "контракт"]]
-    role: Optional[Literal["User", "Admin"]]
+    role: Optional[Literal["User", "Admin", "SuperAdmin"]]
 
 
 class ResponseStudentSchema(StudentSchema):

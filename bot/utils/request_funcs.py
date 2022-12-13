@@ -1,10 +1,6 @@
-from config import URL
-
 import requests
-from redis import asyncio as aioredis
 
-redis = aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
-# redis = aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
+from config import URL
 
 
 def get_request_key() -> str:
@@ -12,15 +8,6 @@ def get_request_key() -> str:
     # key = requests.get()
     # return key
     pass
-
-
-async def is_student_admin(telegram_id: int) -> bool:
-    """Проверяем админ ли студент."""
-    role = await redis.get(telegram_id)
-    if not role:
-        role = get_student_role(telegram_id)
-        await redis.set(telegram_id, role, 60 * 60 * 24)
-    return True if role == 'Admin' else False
 
 
 def get_student_role(telegram_id: int) -> str:
@@ -32,7 +19,7 @@ def get_student_role(telegram_id: int) -> str:
     return 'No_role'
 
 
-async def get_student_info(pole_name: str, value: str, message) -> list[dict]:
+async def get_student_info(pole_name: str, value: str) -> list[dict]:
     """Получаем информацию о студенте."""
     urls_dict = {'Проф карта': 'by_profcard', 'Фамилия студента': 'by_surname', 'Студенческий билет': 'by_student_book'}
     pole = urls_dict[pole_name]
@@ -50,7 +37,6 @@ async def redact_student_info(id: str, pole_name: str, new_value: str) -> list[d
     pole = urls_dict[pole_name]
     data = {pole: new_value}
     response = requests.put(f'{URL}/{id}', json=data).json()
-    print(response)
     if response.get('data'):
         stud_info = response['data']
         return stud_info

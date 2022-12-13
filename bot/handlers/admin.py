@@ -1,45 +1,17 @@
 from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext, filters
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.types import ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardRemove
 
 from bot_run import bot
 from utils import keyboards, request_funcs
-from utils.admin_require_wrapper import admin_require
-
-
-async def cancel_handler(message: types.Message, state: FSMContext) -> None:
-    """Выход из машины состояний."""
-    current_state = await state.get_state()
-    if current_state is None:
-        return
-    await state.finish()
-    await message.reply('OK', reply_markup=(keyboards.ADMIN_KEYBOARD
-                                            if await request_funcs.is_student_admin(message.from_user.id)
-                                            else keyboards.STUDENT_KEYBOARD))
-
-
-async def greeting(message: types.Message) -> None:
-    """Отлавливает команду /start, выводит соответствующую клавиатуру."""
-    await bot.send_message(message.from_user.id, "Вас приветствует бот профкома!",
-                           reply_markup=(keyboards.ADMIN_KEYBOARD
-                                         if await request_funcs.is_student_admin(message.from_user.id)
-                                         else keyboards.STUDENT_KEYBOARD))
-    await message.delete()
+from utils.check_role import admin_require
 
 
 class GetStudentInfoFSM(StatesGroup):
     """Машина состояний - диалог предоставления ин-фы о студенте."""
     waiting_pole_name = State()
     waiting_value = State()
-
-
-class RedactStudentInfoFSM(StatesGroup):
-    """Машина состояний - диалог редактирования ин-фы о студенте."""
-    redact_student_info = State()
-    waiting_change_pole = State()
-    waiting_new_value = State()
-    waiting_confirm = State()
 
 
 @admin_require
@@ -58,11 +30,14 @@ async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
 
 
 async def obtain_value(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает значение известного поля, вносит в state.proxy(),
-    вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте."""
+    """
+    Отлавливает значение известного поля, вносит в state.proxy(),
+    вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте,
+    выдаёт инлайн кнопку для суперадмина
+    """
     async with state.proxy() as data:
         data['value'] = message.text
-        stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'], message)
+        stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'])
     if stud_info:
         for student in stud_info:
             await bot.send_message(message.from_user.id, f"""
@@ -76,69 +51,17 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 Номер профкарты: {student['profcard']}
 Номер студенческого билета: {student['student_book']}
 Причина получения МП: {student['MP_case']}
-            """, reply_markup=InlineKeyboardMarkup().add(InlineKeyboardButton(text='Редактировать',
-                                                                              callback_data=f'redact {student["id"]}')))
-        await bot.send_message(message.from_user.id, 'Все пользователи по данному значению поля выведены',
-                               reply_markup=keyboards.ADMIN_KEYBOARD)
+            """, reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id, student["id"]))
+        await bot.send_message(message.from_user.id, 'Пользователи выведены',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Что-то пошло не так, возможно, вы ошиблись при вводе данных',
-                               reply_markup=keyboards.ADMIN_KEYBOARD)
-    await state.finish()
-
-
-async def redact_student_info(callback_query: types.CallbackQuery, state: FSMContext) -> None:
-    """Отлавливает соответствующий посыл инлайн-кнопки, запускает диалог внесения изменений в бд."""
-    await RedactStudentInfoFSM.redact_student_info.set()
-    async with state.proxy() as data:
-        data['id'] = callback_query.data.replace('redact ', '')
-    await RedactStudentInfoFSM.next()
-    await bot.send_message(callback_query.from_user.id, 'Выберите поле, в которое хотите внести изменения',
-                           reply_markup=keyboards.CHANGE_POLE_KEYBOARD)
-
-
-async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает название поля для последующего изменения, вносит в state.proxy()."""
-    async with state.proxy() as data:
-        data['pole_name'] = message.text
-    await RedactStudentInfoFSM.next()
-    await message.reply(f'Введите новое значение для "{data["pole_name"]}"', reply_markup=ReplyKeyboardRemove())
-
-
-async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает новое значение для ранее выбранного поля, вносит в state.proxy()."""
-    async with state.proxy() as data:
-        data['new_value'] = message.text
-    await RedactStudentInfoFSM.next()
-    await message.reply(f'Внести изменения: {data["pole_name"]} -> {data["new_value"]} ?',
-                        reply_markup=keyboards.APPROVAL_KEYBOARD)
-
-
-async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает подтверждение команды об изменении бд, вызывает соответствующую функцию обращения к серверу."""
-    if message.text == 'Да':
-        async with state.proxy() as data:
-            response = await request_funcs.redact_student_info(data['id'], data['pole_name'], data['new_value'])
-            if response:
-                await message.reply('Изменения внесены', reply_markup=keyboards.ADMIN_KEYBOARD)
-            else:
-                await bot.send_message(message.from_user.id,
-                                       'Что-то пошло не так, возможно, вы ошиблись при вводе данных',
-                                       reply_markup=keyboards.ADMIN_KEYBOARD)
-    elif message.text == 'Нет':
-        await message.reply('OK', reply_markup=keyboards.ADMIN_KEYBOARD)
+        await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вы ошиблись при вводе данных',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     await state.finish()
 
 
 def register_admin_handlers(dp: Dispatcher) -> None:
     """Регистрация админских хендлеров."""
-    dp.register_message_handler(cancel_handler, filters.Text(equals='отмена', ignore_case=True), state='*')
-    dp.register_message_handler(greeting, commands=["start"], state="*")
     dp.register_message_handler(get_student_info, text='Выбрать студента', state=None)
     dp.register_message_handler(obtain_pole_name, content_types=['text'], state=GetStudentInfoFSM.waiting_pole_name)
     dp.register_message_handler(obtain_value, content_types=['text'], state=GetStudentInfoFSM.waiting_value)
-    dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
-                                       state='*')
-    dp.register_message_handler(obtain_change_pole, content_types=['text'],
-                                state=RedactStudentInfoFSM.waiting_change_pole)
-    dp.register_message_handler(obtain_new_value, content_types=['text'], state=RedactStudentInfoFSM.waiting_new_value)
-    dp.register_message_handler(obtain_confirm, content_types=['text'], state=RedactStudentInfoFSM.waiting_confirm)

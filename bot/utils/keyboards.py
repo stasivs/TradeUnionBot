@@ -1,5 +1,6 @@
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
+from utils import check_role
 
 BUTTON_GET_INFO = KeyboardButton('Выбрать студента')
 BUTTON_PROF_ID = KeyboardButton('Проф карта')
@@ -28,3 +29,22 @@ INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAM
 APPROVAL_KEYBOARD.add(BUTTON_YES).add(BUTTON_NO)
 
 STUDENT_KEYBOARD.add(BUTTON_GET_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+
+
+async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
+    if await check_role.is_student_super_admin(user_id):
+        return ADMIN_KEYBOARD
+    elif await check_role.is_student_admin(user_id):
+        return ADMIN_KEYBOARD
+    else:
+        return STUDENT_KEYBOARD
+
+
+async def inline_keyboard_choice(user_id: int, student_id: int) -> InlineKeyboardMarkup:
+    redact_keyboard = InlineKeyboardMarkup()
+    if await check_role.is_student_super_admin(user_id):
+        button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_id}')
+        redact_keyboard.add(button_redact)
+    else:
+        redact_keyboard.add()
+    return redact_keyboard
