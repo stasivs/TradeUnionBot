@@ -1,7 +1,7 @@
 from aiogram import types
 from redis import asyncio as aioredis
 
-from utils.request_funcs import get_student_role
+from utils.request_funcs import get_student_info
 
 redis = aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
 # redis = aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
@@ -29,7 +29,8 @@ async def is_student_admin(telegram_id: int) -> bool:
     """Проверяем админ ли студент."""
     role = await redis.get(telegram_id)
     if not role:
-        role = get_student_role(telegram_id)
+        stud_info = await get_student_info('telegram_id', telegram_id)
+        role = stud_info[0]['role']
         await redis.set(telegram_id, role, 60 * 60 * 24)
     return True if role == 'Admin' or role == 'SuperAdmin' else False
 
@@ -38,6 +39,7 @@ async def is_student_super_admin(telegram_id: int) -> bool:
     """Проверяем админ ли студент."""
     role = await redis.get(telegram_id)
     if not role:
-        role = get_student_role(telegram_id)
+        stud_info = await get_student_info('telegram_id', telegram_id)
+        role = stud_info[0]['role']
         await redis.set(telegram_id, role, 60 * 60 * 24)
     return True if role == 'SuperAdmin' else False

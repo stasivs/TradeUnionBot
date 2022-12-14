@@ -6,13 +6,22 @@ BUTTON_GET_INFO = KeyboardButton('Выбрать студента')
 BUTTON_PROF_ID = KeyboardButton('Проф карта')
 BUTTON_STUD_NUMBER = KeyboardButton('Студенческий билет')
 BUTTON_SURNAME = KeyboardButton('Фамилия студента')
+BUTTON_FIO = KeyboardButton('ФИО студента')
 BUTTON_REASON = KeyboardButton('Причина мат помощи')
 BUTTON_YES = KeyboardButton('Да')
 BUTTON_NO = KeyboardButton('Нет')
 
-BUTTON_GET_SCHEDULE = KeyboardButton('Узнать расписание профкома')
+BUTTON_PROFCOME_SCHEDULE = KeyboardButton('Узнать расписание приёма документов')
 BUTTON_GET_PROF_ID = KeyboardButton('Узнать номер своей профкарты')
 BUTTON_REGISTRATION = KeyboardButton('Пройти регистрацию')
+BUTTON_IPGS = KeyboardButton('ИПГС')
+BUTTON_IAG = KeyboardButton('ИАГ')
+BUTTON_IGES = KeyboardButton('ИГЭС')
+BUTTON_IIESM = KeyboardButton('ИИЭСМ')
+BUTTON_IEUKSN= KeyboardButton('ИЭУКСН')
+BUTTON_ICTMS = KeyboardButton('ИЦТМС')
+BUTTON_MF = KeyboardButton('МФ')
+BUTTON_IFCS = KeyboardButton('ИФКС')
 
 
 ADMIN_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -21,14 +30,17 @@ INFO_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 APPROVAL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
 STUDENT_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+INSTITUTE_NAME_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
 
-ADMIN_KEYBOARD.add(BUTTON_GET_INFO).add(BUTTON_GET_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+ADMIN_KEYBOARD.add(BUTTON_GET_INFO).add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON)
-INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME)
+INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_FIO)
 APPROVAL_KEYBOARD.add(BUTTON_YES).add(BUTTON_NO)
 
-STUDENT_KEYBOARD.add(BUTTON_GET_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+STUDENT_KEYBOARD.add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).add(BUTTON_IAG).add(BUTTON_IGES).add(BUTTON_IIESM)\
+                       .add(BUTTON_IEUKSN).add(BUTTON_ICTMS).add(BUTTON_MF).add(BUTTON_IFCS)
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
