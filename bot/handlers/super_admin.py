@@ -21,34 +21,34 @@ async def redact_student_info(callback_query: types.CallbackQuery, state: FSMCon
     """Отлавливает соответствующий посыл инлайн-кнопки, запускает диалог внесения изменений в бд."""
     await RedactStudentInfoFSM.redact_student_info.set()
     async with state.proxy() as data:
-        data['id'] = callback_query.data.replace('redact ', '')
-    await RedactStudentInfoFSM.next()
+        data['bd_id'] = callback_query.data.replace('redact ', '')
     await bot.send_message(callback_query.from_user.id, 'Выберите поле, в которое хотите внести изменения',
                            reply_markup=keyboards.CHANGE_POLE_KEYBOARD)
+    await RedactStudentInfoFSM.next()
 
 
 async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название поля для последующего изменения, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['pole_name'] = message.text
-    await RedactStudentInfoFSM.next()
     await message.reply(f'Введите новое значение для "{data["pole_name"]}"', reply_markup=ReplyKeyboardRemove())
+    await RedactStudentInfoFSM.next()
 
 
 async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
     """Отлавливает новое значение для ранее выбранного поля, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['new_value'] = message.text
-    await RedactStudentInfoFSM.next()
     await message.reply(f'Внести изменения: {data["pole_name"]} -> {data["new_value"]} ?',
                         reply_markup=keyboards.APPROVAL_KEYBOARD)
+    await RedactStudentInfoFSM.next()
 
 
 async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
     """Отлавливает подтверждение команды об изменении бд, вызывает соответствующую функцию обращения к серверу."""
     if message.text == 'Да':
         async with state.proxy() as data:
-            response = await request_funcs.redact_student_info(data['id'], data['pole_name'], data['new_value'])
+            response = await request_funcs.redact_student_info(data['bd_id'], data['pole_name'], data['new_value'])
             if response:
                 await bot.send_message(message.from_user.id, 'Изменения внесены',
                                        reply_markup=await keyboards.keyboard_choice(message.from_user.id))
@@ -69,7 +69,7 @@ class AddStudentInfoFSM(StatesGroup):
 @super_admin_require
 async def add_many_students_info(message: types.Message) -> None:
     """Отлавливает команду '/add_students_data'."""
-    await bot.send_message(message.from_user.id, 'Отправьте файл в формате "CSV" с информацией о студентах!')
+    await bot.send_message(message.from_user.id, 'Отправьте файл в формате "CSV" с информацией о студентах')
     await AddStudentInfoFSM.waiting_csv_file.set()
 
 
@@ -77,10 +77,13 @@ async def get_csv_file(message: types.Message, state: FSMContext) -> None:
     if message.document.file_name.endswith('.csv'):
         with await bot.download_file_by_id(message.document.file_id) as file:
             res = await request_funcs.add_many_student_data(await csv_parser(str(file.read(), 'utf-8')))
-            await bot.send_message(message.from_user.id,
-                                   f'Успешно добавлена информация о студентах ({res["students_added_counter"]} шт.)!')
+            if res:
+                await bot.send_message(message.from_user.id,
+                                       f'Успешно добавлена информация о {res["students_added_counter"]} студентах')
+            else:
+                await bot.send_message(message.from_user.id, 'Не удалось добавить информацию')
     else:
-        await bot.send_message(message.from_user.id, 'Неправильный формат файла!')
+        await bot.send_message(message.from_user.id, 'Неправильный формат файла')
     await state.finish()
 
 

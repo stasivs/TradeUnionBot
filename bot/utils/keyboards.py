@@ -36,11 +36,11 @@ INSTITUTE_NAME_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 ADMIN_KEYBOARD.add(BUTTON_GET_INFO).add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON)
 INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_FIO)
-APPROVAL_KEYBOARD.add(BUTTON_YES).add(BUTTON_NO)
+APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
 
 STUDENT_KEYBOARD.add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
-INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).add(BUTTON_IAG).add(BUTTON_IGES).add(BUTTON_IIESM)\
-                       .add(BUTTON_IEUKSN).add(BUTTON_ICTMS).add(BUTTON_MF).add(BUTTON_IFCS)
+INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).insert(BUTTON_IAG).add(BUTTON_IGES).insert(BUTTON_IIESM)\
+                       .add(BUTTON_IEUKSN).insert(BUTTON_ICTMS).add(BUTTON_MF).insert(BUTTON_IFCS)
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
@@ -52,10 +52,10 @@ async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
         return STUDENT_KEYBOARD
 
 
-async def inline_keyboard_choice(user_id: int, student_id: int) -> InlineKeyboardMarkup:
+async def inline_keyboard_choice(user_id: int, student_bd_id: int) -> InlineKeyboardMarkup:
     redact_keyboard = InlineKeyboardMarkup()
     if await check_role.is_student_super_admin(user_id):
-        button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_id}')
+        button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_bd_id}')
         redact_keyboard.add(button_redact)
     else:
         redact_keyboard.add()

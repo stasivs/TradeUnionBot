@@ -23,7 +23,7 @@ async def get_profcome_schedule(course_name: str) -> str:
     """Получаем расписание приёма доков для института."""
     response = requests.get(f'{URL}/profcome_schedule/{course_name}')
     if response.status_code == 200:
-        profcome_schedule = response.json()
+        profcome_schedule = response.json()['data']
         return profcome_schedule['schedule']
     return ''
 
@@ -36,7 +36,7 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
         'Студенческий билет': 'by_student_book',
         'ФИО': 'by_fio',
         'telegram_id': 'by_telegram_id'
-        }
+    }
     pole = urls_dict[pole_name]
     response = requests.get(f'{URL}/{pole}/{value}').json()
     if response.get('data'):
@@ -45,12 +45,16 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
     return []
 
 
-async def redact_student_info(id: str, pole_name: str, new_value: str) -> list[dict]:
-    """Отправляем на сервер номер профкарты, название поля для редактирования и его новое значение."""
-    urls_dict = {'Проф карта': 'profcard', 'Причина мат помощи': 'MP_case', 'Студенческий билет': 'student_book'}
+async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> list[dict]:
+    """Отправляем id в базе данных пользователя, название поля для редактирования и его новое значение."""
+    urls_dict = {
+        'Проф карта': 'profcard',
+        'Причина мат помощи': 'MP_case',
+        'Студенческий билет': 'student_book'
+    }
     pole = urls_dict[pole_name]
     data = {pole: new_value}
-    response = requests.put(f'{URL}/{id}', json=data).json()
+    response = requests.put(f'{URL}/{bd_id}', json=data).json()
     if response.get('data'):
         stud_info = response['data']
         return stud_info
@@ -76,4 +80,3 @@ async def add_many_student_data(data: list[dict]) -> dict:
 #         "MP_case": "string"
 #     }
 #     requests.post(URL, json=data)
-

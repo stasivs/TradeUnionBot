@@ -14,9 +14,9 @@ class GetProfcomeScheduleFSM(StatesGroup):
 
 async def get_profcome_schedule(message: types.Message) -> None:
     """Отлавливает команду о предоставлении расписания, запускает соответствующий диалог."""
-    await GetProfcomeScheduleFSM.waiting_institute_name.set()
     await bot.send_message(message.from_user.id, 'Выберите свой институт',
                            reply_markup=keyboards.INSTITUTE_NAME_KEYBOARD)
+    await GetProfcomeScheduleFSM.waiting_institute_name.set()
 
 
 async def obtain_institute_name(message: types.Message, state: FSMContext) -> None:
@@ -35,12 +35,16 @@ async def get_prof_id(message: types.Message) -> None:
     """Отлавливает команду о предоставлении номера профкарты, используя id пользователя
     вызывает соответствующую функцию обращения к серверу."""
     stud_info = await request_funcs.get_student_info('telegram_id', message.from_user.id)
-    prof_id = stud_info['profcard']
-    if prof_id:
-        await bot.send_message(message.from_user.id, f'Номер профкарты: {prof_id}',
-                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+    if stud_info:
+        prof_id = stud_info[0]['profcard']
+        if prof_id:
+            await bot.send_message(message.from_user.id, f'Номер профкарты: {prof_id}',
+                                   reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+        else:
+            await bot.send_message(message.from_user.id, 'Пройдите регистрацию',
+                                   reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Пройдите регистрацию',
+        await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вас ещё нет у нас в базе данных',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
 
@@ -51,18 +55,24 @@ class RegistrationFSM(StatesGroup):
 
 async def registration(message: types.Message, state: FSMContext) -> None:
     """Начало диалога регистрации."""
-    await RegistrationFSM.waiting_stud_info.set()
     await message.reply('Введите номер студенческого билета', reply_markup=ReplyKeyboardRemove())
+    await RegistrationFSM.waiting_stud_info.set()
 
 
 async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
     """Отлавливает номер студенческого при запущенном диалоге RegistrationFSM, вносит ин-фу в бд."""
     stud_id = message.text
     telegram_id = message.from_user.id
-    await request_funcs.redact_student_info(stud_id, 'telegram_id', telegram_id)
+    stud_info = await request_funcs.get_student_info("Студенческий билет", stud_id)
+    if stud_info:
+        bd_id = stud_info[0]["id"]
+        await request_funcs.redact_student_info(bd_id, 'telegram_id', telegram_id)
+        await bot.send_message(message.from_user.id, 'Регистрация пройдена',
+                               reply_markup=keyboards.keyboard_choice(message.from_user.id))
+    else:
+        await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вас ещё нет у нас в базе данных',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     await state.finish()
-    await bot.send_message(message.from_user.id, 'Регистрация пройдена',
-                           reply_markup=keyboards.keyboard_choice(message.from_user.id))
 
 
 def register_student_handlers(dp: Dispatcher) -> None:

@@ -10,11 +10,15 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     if current_state is not None:
         await state.finish()
-    await bot.send_message(message.from_user.id, 'OK', reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+    await bot.send_message(message.from_user.id, 'OK',
+                           reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
 
-async def greeting(message: types.Message) -> None:
+async def greeting(message: types.Message, state: FSMContext) -> None:
     """Отлавливает команду /start, выводит соответствующую клавиатуру."""
+    current_state = await state.get_state()
+    if current_state is not None:
+        await state.finish()
     await bot.send_message(message.from_user.id, "Вас приветствует бот профкома!",
                            reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     await message.delete()
