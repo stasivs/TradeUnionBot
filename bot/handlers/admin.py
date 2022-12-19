@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -17,6 +19,7 @@ class GetStudentInfoFSM(StatesGroup):
 @admin_require
 async def get_student_info(message: types.Message) -> None:
     """Отлавливает соответствующий текст кнопки, запускает диалог предоставления ин-фы о студенте."""
+    logging.info("choose student button")
     await message.reply('Выберите известное вам поле информации о студенте', reply_markup=keyboards.INFO_POLE_KEYBOARD)
     await GetStudentInfoFSM.waiting_pole_name.set()
 

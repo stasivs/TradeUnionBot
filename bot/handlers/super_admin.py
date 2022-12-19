@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -19,6 +21,7 @@ class RedactStudentInfoFSM(StatesGroup):
 
 async def redact_student_info(callback_query: types.CallbackQuery, state: FSMContext) -> None:
     """Отлавливает соответствующий посыл инлайн-кнопки, запускает диалог внесения изменений в бд."""
+    logging.info("redact student info button")
     await RedactStudentInfoFSM.redact_student_info.set()
     async with state.proxy() as data:
         data['bd_id'] = callback_query.data.replace('redact ', '')

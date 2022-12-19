@@ -50,7 +50,8 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
     urls_dict = {
         'Проф карта': 'profcard',
         'Причина мат помощи': 'MP_case',
-        'Студенческий билет': 'student_book'
+        'Студенческий билет': 'student_book',
+        'telegram_id': 'telegram_id'
     }
     pole = urls_dict[pole_name]
     data = {pole: new_value}

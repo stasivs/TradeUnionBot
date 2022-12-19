@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Bot
 from aiogram.utils import executor
 from aiogram.dispatcher import Dispatcher
@@ -10,6 +12,8 @@ from config import TOKEN
 bot = Bot(TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 request_key = get_request_key()
+logging.basicConfig(level=logging.INFO, filename="bot_log.log",
+                    filemode="w", format="%(name)s %(asctime)s %(levelname)s %(message)s")
 
 
 def start_bot() -> None:
