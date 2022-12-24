@@ -2,15 +2,15 @@ from fastapi import APIRouter, Body, status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from re import compile
 
-from database import (
+from database.student import (
     add_student,
     update_student,
     retrieve_students,
     retrieve_student_by_profcard,
     retrieve_student_by_surname,
     retrieve_student_by_student_book,
+    retrieve_student_by_telegram_id,
     add_many_student,
-    get_role_from_db,
 )
 from models.student import (
     ResponseModel,
@@ -69,7 +69,7 @@ async def get_students() -> dict:
 @router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
             response_model=ResponseModel)
-async def get_student_data(profcard: str) -> dict:
+async def get_student_data_by_profcard(profcard: str) -> dict:
     if not compile(r'\d{2}-\d{4}').match(profcard):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profcard is not valid.")
     student = await retrieve_student_by_profcard(profcard)
@@ -81,7 +81,7 @@ async def get_student_data(profcard: str) -> dict:
 @router.get("/by_surname/{surname}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
             response_model=ResponseModel)
-async def get_student_data(surname: str) -> dict:
+async def get_student_data_by_surname(surname: str) -> dict:
     student = await retrieve_student_by_surname(surname)
     if not student:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
@@ -91,7 +91,7 @@ async def get_student_data(surname: str) -> dict:
 @router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
             response_model=ResponseModel)
-async def get_student_data(student_book: str) -> dict:
+async def get_student_data_by_student_book(student_book: str) -> dict:
     if not compile(r'\d{2}-\w-\d{5}').match(student_book):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Student_book is not valid.")
     student = await retrieve_student_by_student_book(student_book)
@@ -100,11 +100,11 @@ async def get_student_data(student_book: str) -> dict:
     return {'data': student}
 
 
-@router.get('/get_role/{telegram_id}', response_description="Student role retrieved",
+@router.get('/by_telegram_id/{telegram_id}', response_description="Student role retrieved",
             status_code=status.HTTP_200_OK,
             response_model=dict)
-async def get_role(telegram_id: str) -> dict:
-    student_role = await get_role_from_db(telegram_id)
-    if not student_role:
+async def get_student_data_by_telegram_id(telegram_id: str) -> dict:
+    student = await retrieve_student_by_telegram_id(telegram_id)
+    if not student:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return student_role
+    return {'data': student}

@@ -1,15 +1,6 @@
-import motor.motor_asyncio
 from bson import ObjectId
 from bson.errors import InvalidId
-
-# MONGO_DETAILS = "mongodb://localhost:27017"
-MONGO_DETAILS = "mongodb"
-
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
-
-database = client.students
-
-student_collection = database.get_collection("students_collection")
+from database.db_config import student_collection
 
 
 def student_helper(student) -> dict:
@@ -82,7 +73,7 @@ async def retrieve_student_by_student_book(student_book: str) -> list[dict]:
         return [student_helper(student)]
 
 
-async def get_role_from_db(telegram_id: str) -> dict:
+async def retrieve_student_by_telegram_id(telegram_id: str) -> list[dict]:
     student = await student_collection.find_one({"telegram_id": telegram_id})
     if student:
-        return {'role': student['role']}
+        return [student_helper(student)]
