@@ -30,7 +30,10 @@ async def is_student_admin(telegram_id: int) -> bool:
     role = await redis.get(telegram_id)
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)
-        role = stud_info[0]['role']
+        if stud_info:
+            role = stud_info[0]['role']
+        else:
+            role = 'User'
         await redis.set(telegram_id, role, 60 * 60 * 24)
     return True if role == 'Admin' or role == 'SuperAdmin' else False
 
@@ -40,6 +43,9 @@ async def is_student_super_admin(telegram_id: int) -> bool:
     role = await redis.get(telegram_id)
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)
-        role = stud_info[0]['role']
+        if stud_info:
+            role = stud_info[0]['role']
+        else:
+            role = 'User'
         await redis.set(telegram_id, role, 60 * 60 * 24)
     return True if role == 'SuperAdmin' else False

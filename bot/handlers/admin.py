@@ -1,7 +1,8 @@
 import logging
+import re
 
 from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 
@@ -38,6 +39,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
     вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте,
     выдаёт инлайн кнопку для суперадмина
     """
+    logging.info(f"stud info got: {message.text}")
     async with state.proxy() as data:
         data['value'] = message.text
         stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'])
@@ -66,5 +68,11 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 def register_admin_handlers(dp: Dispatcher) -> None:
     """Регистрация админских хендлеров."""
     dp.register_message_handler(get_student_info, text='Выбрать студента', state=None)
-    dp.register_message_handler(obtain_pole_name, content_types=['text'], state=GetStudentInfoFSM.waiting_pole_name)
-    dp.register_message_handler(obtain_value, content_types=['text'], state=GetStudentInfoFSM.waiting_value)
+    dp.register_message_handler(obtain_pole_name,
+                                lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Фамилия студента', 'ФИО студента'],
+                                state=GetStudentInfoFSM.waiting_pole_name)
+    dp.register_message_handler(obtain_value, lambda x: any(re.search(i, x.text, flags=0) for i in
+                                                            [r'\b\d{2}-\d{4}\b', r'\b\d{2}-[А-Я]-\d{5}\b',
+                                                             r'\b[А-Я]{1}[а-яё]{1,20}\b',
+                                                             r'[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+']),
+                                state=GetStudentInfoFSM.waiting_value)

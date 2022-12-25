@@ -1,3 +1,5 @@
+import logging
+
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 from utils import check_role
@@ -45,6 +47,7 @@ INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).insert(BUTTON_IAG).add(BUTTON_IGES).ins
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
     if await check_role.is_student_super_admin(user_id):
+        logging.warning(f"SuperAdmin is online, id: {user_id}")
         return ADMIN_KEYBOARD
     elif await check_role.is_student_admin(user_id):
         return ADMIN_KEYBOARD
