@@ -26,7 +26,10 @@ def super_admin_require(func):
 
 
 async def is_student_admin(telegram_id: int) -> bool:
-    """Проверяем админ ли студент."""
+    """
+    Проверка на админа через redis, если не находит там, обращается к монго, если не находит там,
+    выбирает User, конечный вариант заносит в redis, выдаёт bool результат.
+    """
     role = await redis.get(telegram_id)
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)
@@ -39,7 +42,10 @@ async def is_student_admin(telegram_id: int) -> bool:
 
 
 async def is_student_super_admin(telegram_id: int) -> bool:
-    """Проверяем админ ли студент."""
+    """
+    Проверка на суперадмина через redis, если не находит там, обращается к монго, если не находит там,
+    выбирает User, конечный вариант заносит в redis, выдаёт bool результат.
+    """
     role = await redis.get(telegram_id)
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)

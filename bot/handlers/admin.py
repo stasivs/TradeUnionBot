@@ -2,9 +2,8 @@ import logging
 import re
 
 from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext, filters
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.types import ReplyKeyboardRemove
 
 from bot_run import bot
 from utils import keyboards, request_funcs
@@ -29,7 +28,7 @@ async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название известного поля, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['pole_name'] = message.text
-    await message.reply(f'Введите значение поля "{data["pole_name"]}"', reply_markup=ReplyKeyboardRemove())
+    await message.reply(f'Введите значение поля "{data["pole_name"]}"', reply_markup=keyboards.CANCEL_KEYBOARD)
     await GetStudentInfoFSM.next()
 
 

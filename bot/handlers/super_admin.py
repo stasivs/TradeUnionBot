@@ -3,7 +3,6 @@ import logging
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.types import ReplyKeyboardRemove
 
 from bot_run import bot
 from utils import keyboards, request_funcs
@@ -34,7 +33,7 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название поля для последующего изменения, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['pole_name'] = message.text
-    await message.reply(f'Введите новое значение для "{data["pole_name"]}"', reply_markup=ReplyKeyboardRemove())
+    await message.reply(f'Введите новое значение для "{data["pole_name"]}"', reply_markup=keyboards.CANCEL_KEYBOARD)
     await RedactStudentInfoFSM.next()
 
 
@@ -72,7 +71,8 @@ class AddStudentInfoFSM(StatesGroup):
 @super_admin_require
 async def add_many_students_info(message: types.Message) -> None:
     """Отлавливает команду '/add_students_data'."""
-    await bot.send_message(message.from_user.id, 'Отправьте файл в формате "CSV" с информацией о студентах')
+    await bot.send_message(message.from_user.id, 'Отправьте файл в формате "CSV" с информацией о студентах',
+                           reply_markup=keyboards.CANCEL_KEYBOARD)
     await AddStudentInfoFSM.waiting_csv_file.set()
 
 
@@ -82,11 +82,14 @@ async def get_csv_file(message: types.Message, state: FSMContext) -> None:
             res = await request_funcs.add_many_student_data(await csv_parser(str(file.read(), 'utf-8')))
             if res:
                 await bot.send_message(message.from_user.id,
-                                       f'Успешно добавлена информация о {res["students_added_counter"]} студентах')
+                                       f'Успешно добавлена информация о {res["students_added_counter"]} студентах',
+                                       reply_markup=await keyboards.keyboard_choice(message.from_user.id))
             else:
-                await bot.send_message(message.from_user.id, 'Не удалось добавить информацию')
+                await bot.send_message(message.from_user.id, 'Не удалось добавить информацию',
+                                       reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Неправильный формат файла')
+        await bot.send_message(message.from_user.id, 'Неправильный формат файла',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     await state.finish()
 
 

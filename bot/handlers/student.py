@@ -3,7 +3,6 @@ import logging
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
-from aiogram.types import ReplyKeyboardRemove
 
 from bot_run import bot
 from utils import keyboards, request_funcs
@@ -61,7 +60,7 @@ class RegistrationFSM(StatesGroup):
 async def registration(message: types.Message, state: FSMContext) -> None:
     """Начало диалога регистрации."""
     logging.info("registration button")
-    await message.reply('Введите номер студенческого билета', reply_markup=ReplyKeyboardRemove())
+    await message.reply('Введите номер студенческого билета', reply_markup=keyboards.CANCEL_KEYBOARD)
     await RegistrationFSM.waiting_stud_info.set()
 
 
