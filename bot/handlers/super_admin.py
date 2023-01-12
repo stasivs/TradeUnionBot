@@ -1,4 +1,5 @@
 import logging
+import re
 
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
@@ -96,9 +97,15 @@ async def get_csv_file(message: types.Message, state: FSMContext) -> None:
 def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
                                        state='*')
-    dp.register_message_handler(obtain_change_pole, content_types=['text'],
+    dp.register_message_handler(obtain_change_pole,
+                                lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Причина мат помощи'],
                                 state=RedactStudentInfoFSM.waiting_change_pole)
-    dp.register_message_handler(obtain_new_value, content_types=['text'], state=RedactStudentInfoFSM.waiting_new_value)
-    dp.register_message_handler(obtain_confirm, content_types=['text'], state=RedactStudentInfoFSM.waiting_confirm)
+    dp.register_message_handler(obtain_new_value, lambda x: any(re.match(i, x.text.lower(), flags=0) for i in
+                                                                [r'\b\d{2}-\d{4}\b',
+                                                                 r'\b\d{2}-[а-я]-\d{5}\b',
+                                                                 r'[а-я]+']),
+                                state=RedactStudentInfoFSM.waiting_new_value)
+    dp.register_message_handler(obtain_confirm, lambda x: x.text in ['Да', 'Нет'],
+                                state=RedactStudentInfoFSM.waiting_confirm)
     dp.register_message_handler(add_many_students_info, commands=['add_students_data'])
     dp.register_message_handler(get_csv_file, content_types=['document'], state=AddStudentInfoFSM.waiting_csv_file)
