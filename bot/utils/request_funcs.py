@@ -1,4 +1,4 @@
-import requests
+import requests, logging
 
 from config import URL
 
@@ -23,7 +23,7 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
         'Проф карта': 'by_profcard',
         'Фамилия студента': 'by_surname',
         'Студенческий билет': 'by_student_book',
-        'ФИО': 'by_fio',
+        'ФИО студента': 'by_fio',
         'telegram_id': 'by_telegram_id'
     }
     pole = urls_dict[pole_name]
@@ -52,4 +52,6 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
 
 
 async def add_many_student_data(data: list[dict]) -> dict:
-    return requests.post(f'{URL}/student/add_many', json={'data': data}).json()
+    res = requests.post(f'{URL}/student/add_many', json={'data': data})
+    logging.info(res.json())
+    return res

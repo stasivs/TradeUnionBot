@@ -4,7 +4,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMar
 
 from utils import check_role
 
-BUTTON_GET_INFO = KeyboardButton('Выбрать студента')
+BUTTON_GET_INFO = KeyboardButton('Поиск по базе данных')
 BUTTON_PROF_ID = KeyboardButton('Проф карта')
 BUTTON_STUD_NUMBER = KeyboardButton('Студенческий билет')
 BUTTON_SURNAME = KeyboardButton('Фамилия студента')
@@ -20,12 +20,11 @@ BUTTON_IPGS = KeyboardButton('ИПГС')
 BUTTON_IAG = KeyboardButton('ИАГ')
 BUTTON_IGES = KeyboardButton('ИГЭС')
 BUTTON_IIESM = KeyboardButton('ИИЭСМ')
-BUTTON_IEUKSN= KeyboardButton('ИЭУКСН')
+BUTTON_IEUKSN = KeyboardButton('ИЭУКСН')
 BUTTON_ICTMS = KeyboardButton('ИЦТМС')
 BUTTON_MF = KeyboardButton('МФ')
 BUTTON_IFCS = KeyboardButton('ИФКС')
 BUTTON_CANCEL = KeyboardButton('Отмена')
-
 
 ADMIN_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 CHANGE_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -37,17 +36,16 @@ INSTITUTE_NAME_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
 CANCEL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
-ADMIN_KEYBOARD.add(BUTTON_GET_INFO).add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+ADMIN_KEYBOARD.add(BUTTON_GET_INFO)
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON).add(BUTTON_CANCEL)
-INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_CANCEL).add(BUTTON_FIO)
+INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_FIO).add(BUTTON_CANCEL)
 APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
 
 STUDENT_KEYBOARD.add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
-INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).insert(BUTTON_IAG).add(BUTTON_IGES).insert(BUTTON_IIESM)\
-                       .add(BUTTON_IEUKSN).insert(BUTTON_ICTMS).add(BUTTON_MF).insert(BUTTON_IFCS).add(BUTTON_CANCEL)
+INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).insert(BUTTON_IAG).add(BUTTON_IGES).insert(BUTTON_IIESM) \
+    .add(BUTTON_IEUKSN).insert(BUTTON_ICTMS).add(BUTTON_MF).insert(BUTTON_IFCS).add(BUTTON_CANCEL)
 
 CANCEL_KEYBOARD.add(BUTTON_CANCEL)
-
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:

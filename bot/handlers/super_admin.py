@@ -22,6 +22,9 @@ class RedactStudentInfoFSM(StatesGroup):
 async def redact_student_info(callback_query: types.CallbackQuery, state: FSMContext) -> None:
     """Отлавливает соответствующий посыл инлайн-кнопки, запускает диалог внесения изменений в бд."""
     logging.info("redact student info button")
+    current_state = await state.get_state()
+    if current_state is not None:
+        await state.finish()
     await RedactStudentInfoFSM.redact_student_info.set()
     async with state.proxy() as data:
         data['bd_id'] = callback_query.data.replace('redact ', '')
@@ -34,7 +37,8 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название поля для последующего изменения, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['pole_name'] = message.text
-    await message.reply(f'Введите новое значение для "{data["pole_name"]}"', reply_markup=keyboards.CANCEL_KEYBOARD)
+    await bot.send_message(message.from_user.id, f'Введите новое значение для "{data["pole_name"]}"',
+                           reply_markup=keyboards.CANCEL_KEYBOARD)
     await RedactStudentInfoFSM.next()
 
 
@@ -42,8 +46,8 @@ async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
     """Отлавливает новое значение для ранее выбранного поля, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['new_value'] = message.text
-    await message.reply(f'Внести изменения: {data["pole_name"]} -> {data["new_value"]} ?',
-                        reply_markup=keyboards.APPROVAL_KEYBOARD)
+    await bot.send_message(message.from_user.id, f'Внести изменения: {data["pole_name"]} -> {data["new_value"]} ?',
+                           reply_markup=keyboards.APPROVAL_KEYBOARD)
     await RedactStudentInfoFSM.next()
 
 
@@ -100,10 +104,7 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(obtain_change_pole,
                                 lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Причина мат помощи'],
                                 state=RedactStudentInfoFSM.waiting_change_pole)
-    dp.register_message_handler(obtain_new_value, lambda x: any(re.match(i, x.text.lower(), flags=0) for i in
-                                                                [r'\b\d{2}-\d{4}\b',
-                                                                 r'\b\d{2}-[а-я]-\d{5}\b',
-                                                                 r'[а-я]+']),
+    dp.register_message_handler(obtain_new_value, content_types=['text'],
                                 state=RedactStudentInfoFSM.waiting_new_value)
     dp.register_message_handler(obtain_confirm, lambda x: x.text in ['Да', 'Нет'],
                                 state=RedactStudentInfoFSM.waiting_confirm)

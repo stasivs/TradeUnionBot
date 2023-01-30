@@ -41,14 +41,10 @@ async def get_prof_id(message: types.Message) -> None:
     stud_info = await request_funcs.get_student_info('telegram_id', message.from_user.id)
     if stud_info:
         prof_id = stud_info[0]['profcard']
-        if prof_id:
-            await bot.send_message(message.from_user.id, f'Номер профкарты: {prof_id}',
-                                   reply_markup=await keyboards.keyboard_choice(message.from_user.id))
-        else:
-            await bot.send_message(message.from_user.id, 'Пройдите регистрацию',
-                                   reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+        await bot.send_message(message.from_user.id, f'Номер профкарты: {prof_id}',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вас ещё нет у нас в базе данных',
+        await bot.send_message(message.from_user.id, 'Пройдите регистрацию',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
 
@@ -58,10 +54,17 @@ class RegistrationFSM(StatesGroup):
 
 
 async def registration(message: types.Message, state: FSMContext) -> None:
-    """Начало диалога регистрации."""
+    """Начало диалога регистрации, делаем запрос на сервер с целью определить нет ли такого id в бд."""
     logging.info("registration button")
-    await message.reply('Введите номер студенческого билета', reply_markup=keyboards.CANCEL_KEYBOARD)
-    await RegistrationFSM.waiting_stud_info.set()
+    res = await request_funcs.get_student_info("telegram_id", message.from_user.id)
+    if res:
+        await bot.send_message(message.from_user.id, 'Вы уже прошли регистрацию',
+                               reply_markup=keyboards.keyboard_choice(message.from_user.id))
+    else:
+        await bot.send_message(message.from_user.id,
+                               'Для того, чтобы подтвердить своё согласие на обработку персональных данных, '
+                               'введите номер своего студенческого билета', reply_markup=keyboards.CANCEL_KEYBOARD)
+        await RegistrationFSM.waiting_stud_info.set()
 
 
 async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:

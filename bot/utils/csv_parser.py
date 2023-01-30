@@ -1,6 +1,6 @@
 async def csv_parser(data: str) -> list[dict]:
     data_list = []
-    data_split = data.lstrip(';\n\r').replace('\r', '').split('\n')[1:]
+    data_split = data.lstrip(';\n\r').replace('\r', '').split('\n')[1:-1]
     for string in data_split:
         student_data = [val if val else None for val in string.split(';')]
         data_list.append({

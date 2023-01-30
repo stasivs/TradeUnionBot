@@ -20,7 +20,8 @@ class GetStudentInfoFSM(StatesGroup):
 async def get_student_info(message: types.Message) -> None:
     """Отлавливает соответствующий текст кнопки, запускает диалог предоставления ин-фы о студенте."""
     logging.info("choose student button")
-    await message.reply('Выберите известное вам поле информации о студенте', reply_markup=keyboards.INFO_POLE_KEYBOARD)
+    await bot.send_message(message.from_user.id, 'Выберите известное вам поле информации о студенте',
+                           reply_markup=keyboards.INFO_POLE_KEYBOARD)
     await GetStudentInfoFSM.waiting_pole_name.set()
 
 
@@ -28,7 +29,8 @@ async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название известного поля, вносит в state.proxy()."""
     async with state.proxy() as data:
         data['pole_name'] = message.text
-    await message.reply(f'Введите значение поля "{data["pole_name"]}"', reply_markup=keyboards.CANCEL_KEYBOARD)
+    await bot.send_message(message.from_user.id, f'Введите значение поля "{data["pole_name"]}"',
+                           reply_markup=keyboards.CANCEL_KEYBOARD)
     await GetStudentInfoFSM.next()
 
 
@@ -66,12 +68,10 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 
 def register_admin_handlers(dp: Dispatcher) -> None:
     """Регистрация админских хендлеров."""
-    dp.register_message_handler(get_student_info, text='Выбрать студента', state=None)
+    dp.register_message_handler(get_student_info, text='Поиск по базе данных', state=None)
     dp.register_message_handler(obtain_pole_name,
-                                lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Фамилия студента', 'ФИО студента'],
+                                lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Фамилия студента',
+                                                     'ФИО студента'],
                                 state=GetStudentInfoFSM.waiting_pole_name)
-    dp.register_message_handler(obtain_value, lambda x: any(re.search(i, x.text, flags=0) for i in
-                                                            [r'\b\d{2}-\d{4}\b', r'\b\d{2}-[А-Я]-\d{5}\b',
-                                                             r'\b[А-Я]{1}[а-яё]{1,20}\b',
-                                                             r'[А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+ [А-ЯЁ][а-яё]+']),
+    dp.register_message_handler(obtain_value, content_types=['text'],
                                 state=GetStudentInfoFSM.waiting_value)
