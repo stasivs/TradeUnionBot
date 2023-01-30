@@ -66,6 +66,13 @@ async def retrieve_student_by_surname(surname: str) -> list[dict]:
     return students
 
 
+async def retrieve_student_by_fio(surname: str, name: str) -> list[dict]:
+    students = []
+    async for student in student_collection.find({"surname": surname, "name": name}):
+        students.append(student_helper(student))
+    return students
+
+
 # Retrieve a student by student_book
 async def retrieve_student_by_student_book(student_book: str) -> list[dict]:
     student = await student_collection.find_one({"student_book": student_book})

@@ -8,6 +8,7 @@ from database.student import (
     retrieve_students,
     retrieve_student_by_profcard,
     retrieve_student_by_surname,
+    retrieve_student_by_fio,
     retrieve_student_by_student_book,
     retrieve_student_by_telegram_id,
     add_many_student,
@@ -83,6 +84,18 @@ async def get_student_data_by_profcard(profcard: str) -> dict:
             response_model=ResponseModel)
 async def get_student_data_by_surname(surname: str) -> dict:
     student = await retrieve_student_by_surname(surname)
+    if not student:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
+    return {'data': student}
+
+
+@router.get("/by_fio/{fio}", response_description="Student data retrieved",
+            status_code=status.HTTP_200_OK,
+            response_model=ResponseModel)
+async def get_student_data_by_fio(fio: str) -> dict:
+    surname = fio[:fio.find(' ')]
+    name = fio[fio.find(' ') + 1:]
+    student = await retrieve_student_by_fio(surname, name)
     if not student:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
     return {'data': student}
