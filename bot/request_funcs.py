@@ -5,6 +5,7 @@ import requests
 import uuid
 import requests
 from cryptography.fernet import Fernet
+import json
 
 #COMMON_KEY = os.environ.get("COMMONT_KEY") 
 
@@ -33,7 +34,14 @@ async def get_student_info(pole_name: str, value: str, message) -> list[dict]:
     params = {"token": token}
     response = requests.get(f'{URL}/{pole}/{value}', params=params).json()
     if response.get('data'):
-        stud_info = response['data']
+        stud_info= response['data']
+        common_key = Fernet(COMMON_KEY)
+        for student in range(len(stud_info)):
+            for key in stud_info[student]:
+                try:
+                    stud_info[student][key] = common_key.encrypt(stud_info[student][key].decode("utf-8"))
+                except:
+                    continue
         return stud_info
     else:
         return []
