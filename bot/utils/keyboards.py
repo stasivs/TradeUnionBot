@@ -15,7 +15,7 @@ BUTTON_NO = KeyboardButton('Нет')
 
 BUTTON_PROFCOME_SCHEDULE = KeyboardButton('Узнать расписание приёма документов')
 BUTTON_GET_PROF_ID = KeyboardButton('Узнать номер своей профкарты')
-BUTTON_REGISTRATION = KeyboardButton('Пройти регистрацию')
+BUTTON_REGISTRATION = KeyboardButton('Регистрация')
 BUTTON_IPGS = KeyboardButton('ИПГС')
 BUTTON_IAG = KeyboardButton('ИАГ')
 BUTTON_IGES = KeyboardButton('ИГЭС')
@@ -36,16 +36,20 @@ INSTITUTE_NAME_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
 CANCEL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
+REGISTRATION_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+
 ADMIN_KEYBOARD.add(BUTTON_GET_INFO)
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON).add(BUTTON_CANCEL)
 INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_FIO).add(BUTTON_CANCEL)
 APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
 
-STUDENT_KEYBOARD.add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID).add(BUTTON_REGISTRATION)
+STUDENT_KEYBOARD.add(BUTTON_PROFCOME_SCHEDULE).add(BUTTON_GET_PROF_ID)
 INSTITUTE_NAME_KEYBOARD.add(BUTTON_IPGS).insert(BUTTON_IAG).add(BUTTON_IGES).insert(BUTTON_IIESM) \
     .add(BUTTON_IEUKSN).insert(BUTTON_ICTMS).add(BUTTON_MF).insert(BUTTON_IFCS).add(BUTTON_CANCEL)
 
 CANCEL_KEYBOARD.add(BUTTON_CANCEL)
+
+REGISTRATION_KEYBOARD.add(BUTTON_REGISTRATION)
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:

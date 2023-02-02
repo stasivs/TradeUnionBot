@@ -61,9 +61,7 @@ async def registration(message: types.Message, state: FSMContext) -> None:
         await bot.send_message(message.from_user.id, 'Вы уже прошли регистрацию',
                                reply_markup=keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id,
-                               'Для того, чтобы подтвердить своё согласие на обработку персональных данных, '
-                               'введите номер своего студенческого билета', reply_markup=keyboards.CANCEL_KEYBOARD)
+        await bot.send_message(message.from_user.id, 'Введите номер своего студенческого билета')
         await RegistrationFSM.waiting_stud_info.set()
 
 
@@ -79,7 +77,7 @@ async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
         await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вас ещё нет у нас в базе данных',
-                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+                               reply_markup=keyboards.REGISTRATION_KEYBOARD)
     await state.finish()
 
 
@@ -89,6 +87,6 @@ def register_student_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(obtain_institute_name, content_types=['text'],
                                 state=GetProfcomeScheduleFSM.waiting_institute_name)
     dp.register_message_handler(get_prof_id, text=['Узнать номер своей профкарты'])
-    dp.register_message_handler(registration, text=['Пройти регистрацию'])
+    dp.register_message_handler(registration, text=['Регистрация'])
     dp.register_message_handler(obtain_stud_info, filters.Regexp(r'\b\d{2}-[А-Я]-\d{5}\b'),
                                 state=RegistrationFSM.waiting_stud_info)
