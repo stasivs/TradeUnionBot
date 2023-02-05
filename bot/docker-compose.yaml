@@ -5,9 +5,17 @@
 #    restart: always
 #    depends_on:
 #      - redis
+#    networks:
+#      - bot_sec_network
+#    command: python3 bot_run.py
 #
 #  redis:
 #    image: redis
 #    restart: always
-
-# ПОКА НЕ РАБОТАЕТ!
+#    networks:
+#      - bot_sec_network
+#
+#networks:
+#  bot_sec_network:
+#    external:
+#      name: bot_network

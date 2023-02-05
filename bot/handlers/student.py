@@ -59,7 +59,7 @@ async def registration(message: types.Message, state: FSMContext) -> None:
     res = await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if res:
         await bot.send_message(message.from_user.id, 'Вы уже прошли регистрацию',
-                               reply_markup=keyboards.keyboard_choice(message.from_user.id))
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
         await bot.send_message(message.from_user.id, 'Введите номер своего студенческого билета')
         await RegistrationFSM.waiting_stud_info.set()
