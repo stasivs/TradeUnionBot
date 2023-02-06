@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   nginx:
     image: nginx:alpine
@@ -9,18 +9,27 @@ services:
       - ./nginx_config:/etc/nginx/conf.d
     depends_on:
       - app
+    networks:
+      - profkom_server_net
 
   app:
     build: ./app
     restart: always
     depends_on:
       - mongodb
+    networks:
+      - profkom_server_net
 
   mongodb:
     image: mongo
     restart: always
     volumes:
       - data:/data/db
+    networks:
+      - profkom_server_net
 
 volumes:
   data:
+networks:
+  profkom_server_net:
+    name: profkom_server_net

@@ -1,21 +1,20 @@
-#version: '3'
-#services:
-#  bot:
-#    build: .
-#    restart: always
-#    depends_on:
-#      - redis
-#    networks:
-#      - bot_sec_network
-#    command: python3 bot_run.py
-#
-#  redis:
-#    image: redis
-#    restart: always
-#    networks:
-#      - bot_sec_network
-#
-#networks:
-#  bot_sec_network:
-#    external:
-#      name: bot_network
+version: '3.8'
+services:
+  bot:
+    build: .
+    restart: always
+    depends_on:
+      - redis
+    networks:
+      - profkom_bot_net
+
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - profkom_bot_net
+
+networks:
+  profkom_bot_net:
+    external:
+      name: profkom_server_net
