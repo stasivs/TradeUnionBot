@@ -83,6 +83,8 @@ async def add_many_students_info(message: types.Message) -> None:
 
 async def get_csv_file(message: types.Message, state: FSMContext) -> None:
     if message.document.file_name.endswith('.csv'):
+        await bot.send_message(message.from_user.id, 'Ожидайте...',
+                         reply_markup=await keyboards.keyboard_choice(message.from_user.id))
         with await bot.download_file_by_id(message.document.file_id) as file:
             res = await request_funcs.add_many_student_data(await csv_parser(str(file.read(), 'utf-8')))
             if res:

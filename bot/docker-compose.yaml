@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
   bot:
     build: .
@@ -17,4 +17,4 @@ services:
 networks:
   profkom_bot_net:
     external:
-      name: profkom_server_net
+      name: server_profkom_server_net

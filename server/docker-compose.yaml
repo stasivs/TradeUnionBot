@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
   nginx:
     image: nginx:alpine
@@ -15,6 +15,7 @@ services:
   app:
     build: ./app
     restart: always
+    env_file: .env
     depends_on:
       - mongodb
     networks:
@@ -32,4 +33,3 @@ volumes:
   data:
 networks:
   profkom_server_net:
-    name: profkom_server_net

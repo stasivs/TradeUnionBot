@@ -51,7 +51,28 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
     return []
 
 
-async def add_many_student_data(data: list[dict]) -> dict:
-    res = requests.post(f'{URL}/student/add_many', json={'data': data})
-    logging.info(res.json())
-    return res
+async def add_many_student_data(data: list[dict]) -> dict | None:
+    data_100_items_package = []
+    students_added = 0
+    for num, item in enumerate(data):
+        data_100_items_package.append(item)
+        if num % 100 == 0:
+            res = requests.post(
+                f'{URL}/student/add_many',
+                json={'data': data_100_items_package}
+            ).json()
+            if not res:
+                return None
+            students_added += res["students_added_counter"]
+            data_100_items_package = []
+    res = requests.post(
+        f'{URL}/student/add_many',
+        json={'data': data_100_items_package}
+    ).json()
+    if not res:
+        return None
+    students_added += res["students_added_counter"]
+    # logging.info(res.json())
+    if not students_added:
+        return None
+    return {"students_added_counter": students_added}

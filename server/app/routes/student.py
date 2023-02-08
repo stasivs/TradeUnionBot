@@ -1,3 +1,5 @@
+import os
+
 from fastapi import APIRouter, Body, status, HTTPException
 from fastapi.encoders import jsonable_encoder
 from re import compile
@@ -21,7 +23,26 @@ from models.student import (
     ResponseManyStudentModel,
 )
 
+
 router = APIRouter()
+
+
+@router.on_event("startup")
+async def init_superadmin():
+    await add_student({
+        "institute": "SuperAdmin",
+        "course": 999,
+        "group": "SuperAdmin",
+        "surname": "SuperAdmin",
+        "name": "SuperAdmin",
+        "sex": "муж.",
+        "financing_form": "бюджет",
+        "profcard": None,
+        "student_book": None,
+        "role": "SuperAdmin",
+        "MP_case": "SuperAdmin",
+        "telegram_id": os.environ.get("SUPERADMIN_TG_ID"),
+    })
 
 
 @router.post("/", response_description="Student data added into the database",
