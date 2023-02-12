@@ -1,8 +1,8 @@
 from pydantic import BaseModel, constr
 from typing import Optional, Literal
 
-ProfCard = constr(regex=r"\d{2}-\d{3,4}")
-StudentBook = constr(regex=r"\d{2}-\w-\d{5}")
+ProfCard = constr(regex=r"^\d{2}-\d{3,4}$")
+StudentBook = constr(regex=r"^\d{2}-\w-\d{5}$")
 
 
 class StudentSchema(BaseModel):
