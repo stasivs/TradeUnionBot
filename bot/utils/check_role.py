@@ -23,9 +23,12 @@ def admin_require(func):
 def super_admin_require(func):
     """Декоратор - проверка на суперадмина"""
 
-    async def wrapper(message: types.Message):
+    async def wrapper(message: types.Message, state=None):
         if await is_student_super_admin(message.from_user.id):
-            await func(message)
+            if state:
+                await func(message, state)
+            else:
+                await func(message)
 
     return wrapper
 

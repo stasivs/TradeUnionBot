@@ -28,8 +28,20 @@ async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['pole_name'] = message.text
 
-    await bot.send_message(message.from_user.id, f'Введите значение поля "{data["pole_name"]}"',
-                           reply_markup=keyboards.CANCEL_KEYBOARD)
+    if data['pole_name'] == 'Проф карта':
+        await bot.send_message(message.from_user.id, 'Введите значение поля "Проф карта", '
+                                                     'формат: 00-0000"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] == 'Студенческий билет':
+        await bot.send_message(message.from_user.id, 'Введите значение поля "Студенческий билет", '
+                                                     'формат: 00-А-00000"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] in ['Фамилия студента', 'ФИО студента']:
+        await bot.send_message(message.from_user.id, f'Введите значение поля "{data["pole_name"]}"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
     await GetStudentInfoFSM.next()
 
 
@@ -60,10 +72,10 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
             """, reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id, student["id"]))
         await bot.send_message(message.from_user.id, 'Пользователи выведены',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+        await state.finish()
     else:
         await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вы ошиблись при вводе данных',
-                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
-    await state.finish()
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
 
 
 def register_admin_handlers(dp: Dispatcher) -> None:

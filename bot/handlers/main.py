@@ -44,6 +44,16 @@ async def greeting(message: types.Message, state: FSMContext) -> None:
 
 
 def register_main_handlers(dp: Dispatcher) -> None:
-    """Регистрация админских хендлеров."""
+    """Регистрация основных хендлеров."""
     dp.register_message_handler(cancel_handler, filters.Text(equals='отмена', ignore_case=True), state='*')
     dp.register_message_handler(greeting, commands=["start"], state="*")
+
+
+async def wtf_answering(message: types.Message, state: FSMContext) -> None:
+    """Ответ на непонятные сообщения"""
+    await bot.send_message(message.from_user.id, 'Я вас не понимаю, но мне приятно, что вы со мной общаетесь')
+
+
+def register_wtf_handler(dp: Dispatcher) -> None:
+    """Регистрация основных хендлеров."""
+    dp.register_message_handler(wtf_answering, state="*")

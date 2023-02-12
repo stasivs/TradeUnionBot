@@ -7,8 +7,6 @@ from utils import keyboards, request_funcs
 from utils.check_role import super_admin_require, redis
 from utils.csv_parser import csv_parser
 
-import logging
-
 
 class RedactStudentInfoFSM(StatesGroup):
     """Машина состояний - диалог редактирования ин-фы о студенте."""
@@ -18,6 +16,7 @@ class RedactStudentInfoFSM(StatesGroup):
     waiting_confirm = State()
 
 
+@super_admin_require
 async def redact_student_info(callback_query: types.CallbackQuery, state: FSMContext) -> None:
     """Отлавливает соответствующий посыл инлайн-кнопки, запускает диалог внесения изменений в бд."""
 
@@ -40,8 +39,24 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['pole_name'] = message.text
 
-    await bot.send_message(message.from_user.id, f'Введите новое значение для "{data["pole_name"]}"',
-                           reply_markup=keyboards.CANCEL_KEYBOARD)
+    if data['pole_name'] == 'Проф карта':
+        await bot.send_message(message.from_user.id, 'Введите новое значение поля "Проф карта", '
+                                                     'формат: 00-0000"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] == 'Студенческий билет':
+        await bot.send_message(message.from_user.id, 'Введите новое значение поля "Студенческий билет", '
+                                                     'формат: 00-А-00000"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] == 'Причина мат помощи':
+        await bot.send_message(message.from_user.id, f'Введите новое значение поля "Причина мат помощи"',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] == 'Роль пользователя':
+        await bot.send_message(message.from_user.id, f'Введите новое значение поля "Роль пользователя"',
+                               reply_markup=keyboards.ROLE_KEYBOARD)
+
     await RedactStudentInfoFSM.next()
 
 
@@ -87,7 +102,7 @@ class AddStudentInfoFSM(StatesGroup):
 
 
 @super_admin_require
-async def add_many_students_info(message: types.Message) -> None:
+async def add_many_students_info(message: types.Message, state: FSMContext) -> None:
     """Отлавливает команду '/add_students_data'."""
 
     await bot.send_message(message.from_user.id, 'Отправьте файл в формате "CSV" с информацией о студентах',
