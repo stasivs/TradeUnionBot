@@ -4,8 +4,10 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from bot_run import bot
 from utils import keyboards, request_funcs
-from utils.check_role import super_admin_require
+from utils.check_role import super_admin_require, redis
 from utils.csv_parser import csv_parser
+
+import logging
 
 
 class RedactStudentInfoFSM(StatesGroup):
@@ -62,6 +64,10 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
             response = await request_funcs.redact_student_info(data['bd_id'], data['pole_name'], data['new_value'])
 
             if response:
+
+                if response[0]['telegram_id']:
+                    await redis.delete(response[0]['telegram_id'])
+
                 await bot.send_message(message.from_user.id, 'Изменения внесены',
                                        reply_markup=await keyboards.keyboard_choice(message.from_user.id))
             else:
@@ -120,7 +126,7 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
                                 state=RedactStudentInfoFSM.waiting_change_pole)
     dp.register_message_handler(obtain_new_value, content_types=['text'],
                                 state=RedactStudentInfoFSM.waiting_new_value)
-    dp.register_message_handler(obtain_confirm, lambda x: x.text in ['Да', 'Нет'],
+    dp.register_message_handler(obtain_confirm, lambda x: x.text in ['Да', 'Нет', 'да', 'нет'],
                                 state=RedactStudentInfoFSM.waiting_confirm)
     dp.register_message_handler(add_many_students_info, commands=['add_students_data'])
     dp.register_message_handler(get_csv_file, content_types=['document'], state=AddStudentInfoFSM.waiting_csv_file)
