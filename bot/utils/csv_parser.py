@@ -4,17 +4,17 @@ async def csv_parser(data: str) -> list[dict]:
     for string in data_split:
         student_data = [val if val else None for val in string.split(';')]
         parsed_student_data = {
-            "institute": student_data[0],
-            "course": student_data[1],
-            "group": student_data[2],
-            "surname": student_data[3].split()[0],
-            "name": ' '.join(student_data[3].split()[1:]),
-            "sex": student_data[4],
-            "financing_form": student_data[5],
-            "profcard": student_data[6],
-            "student_book": student_data[7],
-            "role": student_data[8],
-            "MP_case": student_data[9],
+            "institute": student_data[0].strip(),
+            "course": student_data[1].strip(),
+            "group": student_data[2].strip(),
+            "surname": student_data[3].split()[0].strip(),
+            "name": ' '.join(student_data[3].split()[1:]).strip(),
+            "sex": student_data[4].strip(),
+            "financing_form": student_data[5].strip(),
+            "profcard": student_data[6].strip(),
+            "student_book": student_data[7].strip(),
+            "role": student_data[8].strip(),
+            "MP_case": student_data[9].strip(),
         }
         if not all([
             parsed_student_data["institute"],
@@ -25,7 +25,7 @@ async def csv_parser(data: str) -> list[dict]:
             parsed_student_data["sex"],
             parsed_student_data["financing_form"],
             parsed_student_data["role"],
-            ]):
+        ]):
             continue
         data_list.append(parsed_student_data)
     return data_list

@@ -1,9 +1,10 @@
+from os import environ
+
 import motor.motor_asyncio
 
-# MONGO_DETAILS = "mongodb://localhost:27017"
-MONGO_DETAILS = "mongodb"
+MONGO_URL = environ.get("MONGO_URL")
 
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URL)
 
 database = client.students
 

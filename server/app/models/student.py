@@ -1,6 +1,8 @@
-from re import compile
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, constr
 from typing import Optional, Literal
+
+ProfCard = constr(regex=r"\d{2}-\d{3,4}")
+StudentBook = constr(regex=r"\d{2}-\w-\d{5}")
 
 
 class StudentSchema(BaseModel):
@@ -17,22 +19,8 @@ class StudentSchema(BaseModel):
     MP_case: Optional[str]
     telegram_id: Optional[str]
 
-    # @validator('profcard')
-    # def prfcard_validator(cls, value):
-    #     if value:
-    #         if not compile(r'\d{2}-\d{4}').match(value):
-    #             raise ValueError('Profcard is not valid')
-    #         return value
-    #
-    # @validator('student_book')
-    # def student_book_validator(cls, value):
-    #     if value:
-    #         if not compile(r'\d{2}-\w-\d{5}').match(value):
-    #             raise ValueError('Student_book is not valid')
-    #         return value
 
-
-class UpdateStudentSchema(StudentSchema):
+class UpdateStudentSchema(BaseModel):
     institute: Optional[str]
     course: Optional[int]
     group: Optional[str]
@@ -40,7 +28,11 @@ class UpdateStudentSchema(StudentSchema):
     name: Optional[str]
     sex: Optional[Literal["муж.", "жен."]]
     financing_form: Optional[Literal["бюджет", "контракт"]]
+    profcard: Optional[ProfCard]
+    student_book: Optional[StudentBook]
     role: Optional[Literal["User", "Admin", "SuperAdmin"]]
+    MP_case: Optional[str]
+    telegram_id: Optional[str]
 
 
 class ResponseStudentSchema(StudentSchema):

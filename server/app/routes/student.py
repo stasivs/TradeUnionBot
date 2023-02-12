@@ -1,21 +1,12 @@
-import os
+from os import environ
 
-from fastapi import APIRouter, Body, status, HTTPException
+from fastapi import APIRouter, Body, Depends, status, HTTPException
 from fastapi.encoders import jsonable_encoder
-from re import compile
 
-from database.student import (
-    add_student,
-    update_student,
-    retrieve_students,
-    retrieve_student_by_profcard,
-    retrieve_student_by_surname,
-    retrieve_student_by_fio,
-    retrieve_student_by_student_book,
-    retrieve_student_by_telegram_id,
-    add_many_student,
-)
+from services.student import StudentService, get_student_service
 from models.student import (
+    ProfCard,
+    StudentBook,
     ResponseModel,
     StudentSchema,
     UpdateStudentSchema,
@@ -23,122 +14,142 @@ from models.student import (
     ResponseManyStudentModel,
 )
 
-
 router = APIRouter()
 
 
 @router.on_event("startup")
 async def init_superadmin():
-    await add_student({
-        "institute": "SuperAdmin",
-        "course": 999,
-        "group": "SuperAdmin",
-        "surname": "SuperAdmin",
-        "name": "SuperAdmin",
-        "sex": "муж.",
-        "financing_form": "бюджет",
-        "profcard": None,
-        "student_book": None,
-        "role": "SuperAdmin",
-        "MP_case": "SuperAdmin",
-        "telegram_id": os.environ.get("SUPERADMIN_TG_ID"),
-    })
+    student_service = await get_student_service()
+    await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
 
 
-@router.post("/", response_description="Student data added into the database",
-             status_code=status.HTTP_201_CREATED,
-             response_model=ResponseModel)
-async def add_student_data(student: StudentSchema = Body(...)) -> dict:
+@router.post(
+    path="/",
+    response_description="Student data added into the services",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ResponseModel,
+)
+async def add_student_data(
+        student: StudentSchema = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
     student = jsonable_encoder(student)
-    new_student = await add_student(student)
-    return {'data': new_student}
+    return {'data': await student_service.add_student(student_data=student)}
 
 
-@router.post("/add_many", response_description="Students data list added into the database",
-             status_code=status.HTTP_201_CREATED,
-             response_model=ResponseManyStudentModel)
-async def add_student_data(students: ManyStudentModel = Body(...)) -> dict:
+@router.post(
+    path="/add_many",
+    response_description="Students data list added into the services",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ResponseManyStudentModel,
+)
+async def add_student_data(
+        students: ManyStudentModel = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
     students = jsonable_encoder(students)
-    result = await add_many_student(students['data'])
-    if not result['counter']:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Data error.")
-    return {'students_added_counter': result['counter']}
+    return {'students_added_counter': await student_service.add_many_student(students_data_list=students['data'])}
 
 
-@router.put('/{id}', response_description="Student data updated",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def update_student_data(id: str, student: UpdateStudentSchema = Body(...)) -> dict:
-    new_data = {key: val for key, val in student.dict().items() if val}
-    if not new_data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty data.")
-    updated_student = await update_student(id, new_data)
-    if not updated_student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': updated_student}
+@router.put(
+    path='/{student_id}',
+    response_description="Student data updated",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def update_student_data(
+        student_id: str,
+        student_update: UpdateStudentSchema = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.update_student(student_id=student_id, student_update=student_update)}
 
 
-@router.get("/", response_description="Students retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_students() -> dict:
-    students = await retrieve_students()
-    if not students:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Students doesn't exist.")
-    return {'data': students}
+@router.get(
+    path="/",
+    response_description="Students retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_students(
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_all_students()}
 
 
-@router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data_by_profcard(profcard: str) -> dict:
-    if not compile(r'\d{2}-\d{4}').match(profcard):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profcard is not valid.")
-    student = await retrieve_student_by_profcard(profcard)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_surname/{surname}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_surname(
+        surname: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"surname": surname})}
 
 
-@router.get("/by_surname/{surname}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data_by_surname(surname: str) -> dict:
-    student = await retrieve_student_by_surname(surname)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_fio/{fio}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_fio(
+        fio: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"fio": fio})}
 
 
-@router.get("/by_fio/{fio}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data_by_fio(fio: str) -> dict:
-    surname = fio[:fio.find(' ')]
-    name = fio[fio.find(' ') + 1:]
-    student = await retrieve_student_by_fio(surname, name)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_profcard/{profcard}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_profcard(
+        profcard: ProfCard,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"profcard": str(profcard)})}
 
 
-@router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data_by_student_book(student_book: str) -> dict:
-    if not compile(r'\d{2}-\w-\d{5}').match(student_book):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Student_book is not valid.")
-    student = await retrieve_student_by_student_book(student_book)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_student_book/{student_book}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_student_book(
+        student_book: StudentBook,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"student_book": student_book})}
 
 
-@router.get('/by_telegram_id/{telegram_id}', response_description="Student role retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=dict)
-async def get_student_data_by_telegram_id(telegram_id: str) -> dict:
-    student = await retrieve_student_by_telegram_id(telegram_id)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path='/by_telegram_id/{telegram_id}',
+    response_description="Student role retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_telegram_id(
+        telegram_id: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"telegram_id": telegram_id})}
+
+
+@router.delete(
+    path='/{student_id}',
+    response_description="Student data updated",
+    status_code=status.HTTP_200_OK,
+    response_model=dict,
+)
+async def delete_student(
+        student_id: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.delete_student(student_id=student_id)}
