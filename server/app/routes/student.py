@@ -5,8 +5,8 @@ from fastapi.encoders import jsonable_encoder
 
 from services.student import StudentService, get_student_service
 from models.student import (
-    ProfCard,
-    StudentBook,
+    # ProfCard,
+    # StudentBook,
     ResponseModel,
     StudentSchema,
     UpdateStudentSchema,
@@ -110,7 +110,8 @@ async def get_student_data_by_fio(
     response_model=ResponseModel,
 )
 async def get_student_data_by_profcard(
-        profcard: ProfCard,
+        # profcard: ProfCard,
+        profcard: str,
         student_service: StudentService = Depends(get_student_service),
 ) -> dict:
     return {'data': await student_service.get_student(searching_dict={"profcard": str(profcard)})}
@@ -123,7 +124,8 @@ async def get_student_data_by_profcard(
     response_model=ResponseModel,
 )
 async def get_student_data_by_student_book(
-        student_book: StudentBook,
+        # student_book: StudentBook,
+        student_book: str,
         student_service: StudentService = Depends(get_student_service),
 ) -> dict:
     return {'data': await student_service.get_student(searching_dict={"student_book": student_book})}

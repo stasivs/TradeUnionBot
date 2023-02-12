@@ -206,10 +206,10 @@ async def test_get_by_profcard(async_client: AsyncClient):
     }
     response = await async_client.get(url=f"student/by_profcard/11-111")
     assert response.status_code == 404
-    response = await async_client.get(url=f"student/by_profcard/11-11")
-    assert response.status_code == 422
-    response = await async_client.get(url=f"student/by_profcard/11-11111")
-    assert response.status_code == 422
+    # response = await async_client.get(url=f"student/by_profcard/11-11")
+    # assert response.status_code == 422
+    # response = await async_client.get(url=f"student/by_profcard/11-11111")
+    # assert response.status_code == 422
 
 
 @pytest.mark.asyncio
