@@ -35,6 +35,7 @@ async def is_student_admin(telegram_id: int) -> bool:
     выбирает User, конечный вариант заносит в redis, выдаёт bool результат.
     """
     role = await redis.get(telegram_id)
+
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)
         if stud_info:
@@ -51,6 +52,7 @@ async def is_student_super_admin(telegram_id: int) -> bool:
     выбирает User, конечный вариант заносит в redis, выдаёт bool результат.
     """
     role = await redis.get(telegram_id)
+
     if not role:
         stud_info = await get_student_info('telegram_id', telegram_id)
         if stud_info:

@@ -1,6 +1,3 @@
-import logging
-import re
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
@@ -19,7 +16,7 @@ class GetStudentInfoFSM(StatesGroup):
 @admin_require
 async def get_student_info(message: types.Message) -> None:
     """Отлавливает соответствующий текст кнопки, запускает диалог предоставления ин-фы о студенте."""
-    logging.info("choose student button")
+
     await bot.send_message(message.from_user.id, 'Выберите известное вам поле информации о студенте',
                            reply_markup=keyboards.INFO_POLE_KEYBOARD)
     await GetStudentInfoFSM.waiting_pole_name.set()
@@ -27,8 +24,10 @@ async def get_student_info(message: types.Message) -> None:
 
 async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
     """Отлавливает название известного поля, вносит в state.proxy()."""
+
     async with state.proxy() as data:
         data['pole_name'] = message.text
+
     await bot.send_message(message.from_user.id, f'Введите значение поля "{data["pole_name"]}"',
                            reply_markup=keyboards.CANCEL_KEYBOARD)
     await GetStudentInfoFSM.next()
@@ -40,10 +39,10 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
     вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте,
     выдаёт инлайн кнопку для суперадмина
     """
-    logging.info(f"stud info got: {message.text}")
     async with state.proxy() as data:
-        data['value'] = message.text
+        data['value'] = message.text.title()
         stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'])
+
     if stud_info:
         for student in stud_info:
             await bot.send_message(message.from_user.id, f"""
@@ -57,6 +56,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 Номер профкарты: {student['profcard']}
 Номер студенческого билета: {student['student_book']}
 Причина получения МП: {student['MP_case']}
+Роль пользователя: {student['role']}
             """, reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id, student["id"]))
         await bot.send_message(message.from_user.id, 'Пользователи выведены',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))

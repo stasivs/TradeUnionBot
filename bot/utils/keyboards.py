@@ -10,6 +10,7 @@ BUTTON_STUD_NUMBER = KeyboardButton('Студенческий билет')
 BUTTON_SURNAME = KeyboardButton('Фамилия студента')
 BUTTON_FIO = KeyboardButton('ФИО студента')
 BUTTON_REASON = KeyboardButton('Причина мат помощи')
+BUTTON_ROLE = KeyboardButton('Роль пользователя')
 BUTTON_YES = KeyboardButton('Да')
 BUTTON_NO = KeyboardButton('Нет')
 
@@ -39,7 +40,7 @@ CANCEL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 REGISTRATION_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
 
 ADMIN_KEYBOARD.add(BUTTON_GET_INFO)
-CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON).add(BUTTON_CANCEL)
+CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_REASON).add(BUTTON_ROLE).add(BUTTON_CANCEL)
 INFO_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_SURNAME).add(BUTTON_FIO).add(BUTTON_CANCEL)
 APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
 
@@ -56,17 +57,22 @@ async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
     if await check_role.is_student_super_admin(user_id):
         logging.warning(f"SuperAdmin is online, id: {user_id}")
         return ADMIN_KEYBOARD
+
     elif await check_role.is_student_admin(user_id):
         return ADMIN_KEYBOARD
+
     else:
         return STUDENT_KEYBOARD
 
 
 async def inline_keyboard_choice(user_id: int, student_bd_id: int) -> InlineKeyboardMarkup:
     redact_keyboard = InlineKeyboardMarkup()
+
     if await check_role.is_student_super_admin(user_id):
         button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_bd_id}')
         redact_keyboard.add(button_redact)
+
     else:
         redact_keyboard.add()
+
     return redact_keyboard

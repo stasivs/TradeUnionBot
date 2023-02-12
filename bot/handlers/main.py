@@ -1,5 +1,3 @@
-import logging
-
 from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext, filters
 
@@ -9,9 +7,11 @@ from bot_run import bot
 
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     """Выход из машины состояний. """
+
     current_state = await state.get_state()
     if current_state is not None:
         await state.finish()
+
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if check:
         await bot.send_message(message.from_user.id, 'OK',
@@ -23,10 +23,11 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
 
 async def greeting(message: types.Message, state: FSMContext) -> None:
     """Отлавливает команду /start, выводит соответствующую клавиатуру."""
-    logging.info("command '/start'")
+
     current_state = await state.get_state()
     if current_state is not None:
         await state.finish()
+
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if check:
         await bot.send_message(message.from_user.id, 'Вас приветствует бот профкома!',
