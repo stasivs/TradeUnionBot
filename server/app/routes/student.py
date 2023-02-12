@@ -1,6 +1,6 @@
 from os import environ
 
-from fastapi import APIRouter, Body, Depends, status, HTTPException
+from fastapi import APIRouter, Body, Depends, status
 from fastapi.encoders import jsonable_encoder
 
 from services.student import StudentService, get_student_service
