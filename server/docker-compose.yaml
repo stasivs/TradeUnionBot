@@ -4,9 +4,9 @@ services:
     image: nginx:alpine
     restart: always
     ports:
-      - '80:80'
+      - '8000:80'
     volumes:
-      - ./nginx_config:/etc/nginx/conf.d
+      - ./nginx_config:/etc/nginx/conf.d:z
     depends_on:
       - app
 
@@ -19,6 +19,8 @@ services:
   mongodb:
     image: mongo
     restart: always
+    ports:
+      - '27017:27017'
     volumes:
       - data:/data/db
 

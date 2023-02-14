@@ -1,12 +1,10 @@
-from common_key import COMMON_KEY
-
+from .common_key import COMMON_KEY
+from .utils import queue, check_wrapper, background_check, check
 from fastapi import APIRouter, Body, status, HTTPException, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from re import compile
-import uuid
-import asyncio
 from cryptography.fernet import Fernet
-import json
+import uuid
 
 from database import (
     add_student,
@@ -23,7 +21,6 @@ from models.student import (
 )
 
 router = APIRouter()
-queue = asyncio.Queue(1)  # Size of queue. One for processing one query
 
 
 # COMMON_KEY = os.environ.get("COMMONT_KEY")
@@ -97,7 +94,7 @@ async def get_student_data(profcard: str, token: str = None) -> dict:
 
 @router.get("/by_surname/{surname}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-           )
+            response_model=ResponseModel)
 async def get_student_data(surname: str, token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
@@ -113,7 +110,7 @@ async def get_student_data(surname: str, token: str = None) -> dict:
 
 @router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
             status_code=status.HTTP_200_OK,
-            )
+            response_model=ResponseModel)
 async def get_student_data(student_book: str, token: str = None) -> dict:
     if not token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
@@ -141,30 +138,4 @@ async def get_secret_key(background_tasks: BackgroundTasks):
     return {'data': secret_url_uuid}
 
 
-async def check(url_uuid: str) -> bool:
-    try:
-        item = queue.get_nowait()
-    except:
-        return False
-    queue.task_done()
-    if str(item) == url_uuid:
-        return True
-    else:
-        return False
 
-
-async def background_check():
-    # Life time of unique link
-    await asyncio.sleep(0.5)
-    if queue.full():
-        queue.get_nowait()
-        queue.task_done()
-
-async def encrypt_data(data: list[dict]) -> None:
-    common_key = Fernet(COMMON_KEY)
-    for student in range(len(data)):
-        for key in data[student]:
-            try:
-                data[student][key] = common_key.encrypt(data[student][key].encode("utf-8"))
-            except:
-                continue
