@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 services:
   nginx:
     image: nginx:alpine
@@ -9,12 +9,18 @@ services:
       - ./nginx_config:/etc/nginx/conf.d:z
     depends_on:
       - app
+    networks:
+      - profkom_server_net
 
   app:
     build: ./app
     restart: always
+    env_file: .env
+    command: "uvicorn main:app --host 0.0.0.0 --port 8000"
     depends_on:
       - mongodb
+    networks:
+      - profkom_server_net
 
   mongodb:
     image: mongo
@@ -23,6 +29,10 @@ services:
       - '27017:27017'
     volumes:
       - data:/data/db
+    networks:
+      - profkom_server_net
 
 volumes:
   data:
+networks:
+  profkom_server_net:

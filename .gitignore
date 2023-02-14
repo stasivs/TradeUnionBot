@@ -1,6 +1,6 @@
 venv/
-server/Primer.csv
 __pycache__/
-config.py
+bot/config.py
 .idea/
 common_key.py
+bot/bot_log.log

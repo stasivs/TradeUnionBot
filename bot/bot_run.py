@@ -1,25 +1,34 @@
+import logging
+
 from aiogram import Bot
 from aiogram.utils import executor
 from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from request_funcs import get_request_key
+from utils.request_funcs import get_request_key
 
-from request_funcs import get_admin_list
 from config import TOKEN
 
-admin_list = get_admin_list()
 bot = Bot(TOKEN)
 dp = Dispatcher(bot, storage=MemoryStorage())
 #request_key = get_request_key()
 
 
-def start_bot() -> None:
-    from admin import register_admin_handlers
-    from student import register_student_handlers
+# logging.basicConfig(level=logging.INFO, filename="bot_log.log",
+#                     filemode="w", format="%(name)s %(asctime)s %(levelname)s %(message)s")
 
+
+def start_bot() -> None:
+    from handlers.main import register_main_handlers, register_wtf_handler
+    from handlers.admin import register_admin_handlers
+    from handlers.student import register_student_handlers
+    from handlers.super_admin import register_super_admin_handlers
+
+    register_main_handlers(dp)
+    register_super_admin_handlers(dp)
     register_admin_handlers(dp)
     register_student_handlers(dp)
+    register_wtf_handler(dp)
     executor.start_polling(dp, skip_updates=True)
 
 

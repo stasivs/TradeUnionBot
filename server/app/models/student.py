@@ -1,6 +1,8 @@
-from re import compile
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, constr
 from typing import Optional, Literal
+
+# ProfCard = constr(regex=r"^\d{2}-\d{3,4}$")
+# StudentBook = constr(regex=r"^\d{2}-\w-\d{5}$")
 
 
 class StudentSchema(BaseModel):
@@ -13,23 +15,12 @@ class StudentSchema(BaseModel):
     financing_form: Literal["бюджет", "контракт"]
     profcard: Optional[str]
     student_book: Optional[str]
-    role: Literal["User", "Admin"]
+    role: Literal["User", "Admin", "SuperAdmin"]
     MP_case: Optional[str]
-
-    @validator('profcard')
-    def prfcard_validator(cls, value):
-        if not compile(r'\d{2}-\d{4}').match(value):
-            raise ValueError('Profcard is not valid')
-        return value
-
-    @validator('student_book')
-    def student_book_validator(cls, value):
-        if not compile(r'\d{2}-\w-\d{5}').match(value):
-            raise ValueError('Student_book is not valid')
-        return value
+    telegram_id: Optional[str]
 
 
-class UpdateStudentSchema(StudentSchema):
+class UpdateStudentSchema(BaseModel):
     institute: Optional[str]
     course: Optional[int]
     group: Optional[str]
@@ -37,7 +28,13 @@ class UpdateStudentSchema(StudentSchema):
     name: Optional[str]
     sex: Optional[Literal["муж.", "жен."]]
     financing_form: Optional[Literal["бюджет", "контракт"]]
-    role: Optional[Literal["User", "Admin"]]
+    # profcard: Optional[ProfCard]
+    profcard: Optional[str]
+    # student_book: Optional[StudentBook]
+    student_book: Optional[str]
+    role: Optional[Literal["User", "Admin", "SuperAdmin"]]
+    MP_case: Optional[str]
+    telegram_id: Optional[str]
 
 
 class ResponseStudentSchema(StudentSchema):
@@ -46,3 +43,11 @@ class ResponseStudentSchema(StudentSchema):
 
 class ResponseModel(BaseModel):
     data: list[ResponseStudentSchema]
+
+
+class ManyStudentModel(BaseModel):
+    data: list[StudentSchema]
+
+
+class ResponseManyStudentModel(BaseModel):
+    students_added_counter: int

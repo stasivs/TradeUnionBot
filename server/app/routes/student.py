@@ -5,125 +5,163 @@ from fastapi.encoders import jsonable_encoder
 from re import compile
 from cryptography.fernet import Fernet
 import uuid
+from os import environ
 
-from database import (
-    add_student,
-    update_student,
-    retrieve_students,
-    retrieve_student_by_profcard,
-    retrieve_student_by_surname,
-    retrieve_student_by_student_book,
-)
+from fastapi import APIRouter, Body, Depends, status
+from fastapi.encoders import jsonable_encoder
+
+from services.student import StudentService, get_student_service
 from models.student import (
+    # ProfCard,
+    # StudentBook,
     ResponseModel,
     StudentSchema,
     UpdateStudentSchema,
+    ManyStudentModel,
+    ResponseManyStudentModel,
 )
 
 router = APIRouter()
 
 
-# COMMON_KEY = os.environ.get("COMMONT_KEY")
+@router.on_event("startup")
+async def init_superadmin():
+    student_service = await get_student_service()
+    await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
 
-@router.post("/", response_description="Student data added into the database",
-             status_code=status.HTTP_201_CREATED,
-             response_model=ResponseModel)
-async def add_student_data(student: StudentSchema = Body(...), token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
+
+@router.post(
+    path="/",
+    response_description="Student data added into the services",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ResponseModel,
+)
+async def add_student_data(
+        student: StudentSchema = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
     student = jsonable_encoder(student)
-    new_student = await add_student(student)
-    return {'data': new_student}
+    return {'data': await student_service.add_student(student_data=student)}
 
 
-@router.put('/{id}', response_description="Student data updated",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def update_student_data(id: str, student: UpdateStudentSchema = Body(...), token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-    new_data = {key: val for key, val in student.dict().items() if val}
-    if not new_data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Empty data.")
-    updated_student = await update_student(id, new_data)
-    await encrypt_data(updated_student)
-    if not updated_student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': updated_student}
+@router.post(
+    path="/add_many",
+    response_description="Students data list added into the services",
+    status_code=status.HTTP_201_CREATED,
+    response_model=ResponseManyStudentModel,
+)
+async def add_student_data(
+        students: ManyStudentModel = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    students = jsonable_encoder(students)
+    return {'students_added_counter': await student_service.add_many_student(students_data_list=students['data'])}
 
 
-@router.get("/", response_description="Students retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_students(token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-    students= await retrieve_students()
-    encrypt_data(students)
-    if not students:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Students doesn't exist.")
-    return {'data': students}
+@router.put(
+    path='/{student_id}',
+    response_description="Student data updated",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def update_student_data(
+        student_id: str,
+        student_update: UpdateStudentSchema = Body(...),
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.update_student(student_id=student_id, student_update=student_update)}
 
 
-@router.get("/by_profcard/{profcard}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data(profcard: str, token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-    if not compile(r'\d{2}-\d{4}').match(profcard):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Profcard is not valid.")
-    student = await retrieve_student_by_profcard(profcard)
-    await encrypt_data(student)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/",
+    response_description="Students retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_students(
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_all_students()}
 
 
-@router.get("/by_surname/{surname}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data(surname: str, token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-    student = await retrieve_student_by_surname(surname)
-    await encrypt_data(student)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_surname/{surname}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_surname(
+        surname: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"surname": surname})}
 
 
-@router.get("/by_student_book/{student_book}", response_description="Student data retrieved",
-            status_code=status.HTTP_200_OK,
-            response_model=ResponseModel)
-async def get_student_data(student_book: str, token: str = None) -> dict:
-    if not token:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-    access = await check(token)
-    if not access:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-    if not compile(r'\d{2}-\w-\d{5}').match(student_book):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Student_book is not valid.")
-    student = await retrieve_student_by_student_book(student_book)
-    await encrypt_data(student)
-    if not student:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
-    return {'data': student}
+@router.get(
+    path="/by_fio/{fio}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_fio(
+        fio: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"fio": fio})}
+
+
+@router.get(
+    path="/by_profcard/{profcard}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_profcard(
+        # profcard: ProfCard,
+        profcard: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"profcard": str(profcard)})}
+
+
+@router.get(
+    path="/by_student_book/{student_book}",
+    response_description="Student data retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_student_book(
+        # student_book: StudentBook,
+        student_book: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"student_book": student_book})}
+
+
+@router.get(
+    path='/by_telegram_id/{telegram_id}',
+    response_description="Student role retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_telegram_id(
+        telegram_id: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"telegram_id": telegram_id})}
+
+
+@router.delete(
+    path='/{student_id}',
+    response_description="Student data updated",
+    status_code=status.HTTP_200_OK,
+    response_model=dict,
+)
+async def delete_student(
+        student_id: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.delete_student(student_id=student_id)}
 
 
 @router.get("/synchronize", response_description="Secret key for detecting bot")
@@ -136,6 +174,3 @@ async def get_secret_key(background_tasks: BackgroundTasks):
     # Background task for detecting unused synchronized links
     background_tasks.add_task(background_check)
     return {'data': secret_url_uuid}
-
-
-
