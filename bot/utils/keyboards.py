@@ -59,11 +59,11 @@ REGISTRATION_KEYBOARD.add(BUTTON_REGISTRATION)
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
-    if False:#await check_role.is_student_super_admin(user_id):
+    if await check_role.is_student_super_admin(user_id):
         logging.warning(f"SuperAdmin is online, id: {user_id}")
         return ADMIN_KEYBOARD
 
-    elif True:#await check_role.is_student_admin(user_id):
+    elif await check_role.is_student_admin(user_id):
         return ADMIN_KEYBOARD
 
     else:

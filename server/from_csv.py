@@ -31,6 +31,7 @@ async def add_to_database():
                 "student_book": data_list[7],
                 "role": data_list[8],
                 "MP_case": data_list[9],
+                "telegram_id": data_list[10]
             })
     return 'Done!'
 

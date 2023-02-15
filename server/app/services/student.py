@@ -22,7 +22,7 @@ class StudentService:
             "student_book": student["student_book"],
             "role": student["role"],
             "MP_case": student["MP_case"],
-          #  "telegram_id": student["telegram_id"],
+            "telegram_id": student["telegram_id"],
         }
 
     async def get_all_students(self) -> list:

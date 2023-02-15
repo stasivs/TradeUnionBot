@@ -14,7 +14,7 @@ def admin_require(func):
     """Декоратор - проверка на админа"""
 
     async def wrapper(message: types.Message):
-        if True:#await is_student_admin(message.from_user.id):
+        if await is_student_admin(message.from_user.id):
             await func(message)
 
     return wrapper
