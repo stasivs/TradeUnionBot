@@ -28,7 +28,7 @@ async def greeting(message: types.Message, state: FSMContext) -> None:
     if current_state is not None:
         await state.finish()
 
-    check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
+    check = True#await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if check:
         await bot.send_message(message.from_user.id, 'Вас приветствует бот профкома!',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))

@@ -5,7 +5,6 @@ from aiogram.utils import executor
 from aiogram.dispatcher import Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
-from utils.request_funcs import get_request_key
 
 from config import TOKEN
 

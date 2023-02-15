@@ -4,3 +4,4 @@ bot/config.py
 .idea/
 common_key.py
 bot/bot_log.log
+server/data

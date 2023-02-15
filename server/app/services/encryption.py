@@ -1,4 +1,4 @@
-from .common_key import COMMON_KEY
+from common_key import COMMON_KEY
 from fastapi import BackgroundTasks
 from fastapi import HTTPException, status
 import asyncio
@@ -8,16 +8,12 @@ from functools import wraps
 
 queue = asyncio.Queue(1)  # Size of queue. One for processing one query
 
-def check_wrapper(func):
-    async def wrapper(*args, **kwargs):
-        token = kwargs.get('token', False)
-        if not token:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
-        access = await check(token)
-        if not access:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
-        return await func(*args, **kwargs)
-    return wrapper
+async def verify_token(token: str):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="None token.")
+    access = await check(token)
+    if not access:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token.")
 
 
 async def check(url_uuid: str) -> bool:

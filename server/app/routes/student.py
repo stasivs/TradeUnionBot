@@ -1,5 +1,4 @@
-from .common_key import COMMON_KEY
-from .utils import queue, check_wrapper, background_check, check
+from common_key import COMMON_KEY
 from fastapi import APIRouter, Body, status, HTTPException, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from re import compile
@@ -11,6 +10,7 @@ from fastapi import APIRouter, Body, Depends, status
 from fastapi.encoders import jsonable_encoder
 
 from services.student import StudentService, get_student_service
+from services.encryption import verify_token, queue, background_check
 from models.student import (
     # ProfCard,
     # StudentBook,
@@ -34,6 +34,7 @@ async def init_superadmin():
     path="/",
     response_description="Student data added into the services",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def add_student_data(
@@ -48,6 +49,7 @@ async def add_student_data(
     path="/add_many",
     response_description="Students data list added into the services",
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseManyStudentModel,
 )
 async def add_student_data(
@@ -62,6 +64,7 @@ async def add_student_data(
     path='/{student_id}',
     response_description="Student data updated",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def update_student_data(
@@ -76,6 +79,7 @@ async def update_student_data(
     path="/",
     response_description="Students retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_students(
@@ -88,6 +92,7 @@ async def get_students(
     path="/by_surname/{surname}",
     response_description="Student data retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_student_data_by_surname(
@@ -101,6 +106,7 @@ async def get_student_data_by_surname(
     path="/by_fio/{fio}",
     response_description="Student data retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_student_data_by_fio(
@@ -114,6 +120,7 @@ async def get_student_data_by_fio(
     path="/by_profcard/{profcard}",
     response_description="Student data retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_student_data_by_profcard(
@@ -128,6 +135,7 @@ async def get_student_data_by_profcard(
     path="/by_student_book/{student_book}",
     response_description="Student data retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_student_data_by_student_book(
@@ -142,6 +150,7 @@ async def get_student_data_by_student_book(
     path='/by_telegram_id/{telegram_id}',
     response_description="Student role retrieved",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=ResponseModel,
 )
 async def get_student_data_by_telegram_id(
@@ -155,6 +164,7 @@ async def get_student_data_by_telegram_id(
     path='/{student_id}',
     response_description="Student data updated",
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(verify_token),],
     response_model=dict,
 )
 async def delete_student(
@@ -164,8 +174,12 @@ async def delete_student(
     return {'data': await student_service.delete_student(student_id=student_id)}
 
 
-@router.get("/synchronize", response_description="Secret key for detecting bot")
-async def get_secret_key(background_tasks: BackgroundTasks):
+@router.get(
+    path="/token", 
+    response_description="Secret key for detecting bot",
+    status_code=status.HTTP_200_OK,
+    response_model=dict)
+async def get_secret_token(background_tasks: BackgroundTasks) -> dict:
     # Common key. Bot also has it
     common_key = Fernet(COMMON_KEY)  # Here is COMMON_KEY
     url_uuid = uuid.uuid4()

@@ -9,4 +9,4 @@ app.include_router(StudentRouter, tags=["Student"], prefix="/student")
 
 app.include_router(TimetableRouter, tags=['Timetable'], prefix="/timetable")
 
-#uvicorn.run(app, host="0.0.0.0", port=8000)
+uvicorn.run(app, host="0.0.0.0", port=8000)
