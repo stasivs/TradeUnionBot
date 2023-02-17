@@ -53,16 +53,15 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
     """
     async with state.proxy() as data:
         data['value'] = message.text.title()
-        stud_info = await request_funcs.get_student_info(data['pole_name'], data['value'])
+        response = await request_funcs.get_student_info(data['pole_name'], data['value'])
 
-    if stud_info:
-        for student in stud_info:
+    if isinstance(response, list):
+        for student in response:
             await bot.send_message(message.from_user.id, f"""
-                Институт: {student['institute']}
-Курс: {student['course']}
-Группа: {student['group']}
+                Группа: {student['group']}
 Фамилия: {student['surname']}
-Имя: {student['name']}
+Имя: {student['name'].split()[0]}
+Отчество: {student['name'].split()[1]}
 Пол: {student['sex']}
 Форма финансирования: {student['financing_form']}
 Номер профкарты: {student['profcard']}
@@ -73,6 +72,11 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
         await bot.send_message(message.from_user.id, 'Пользователи выведены',
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
         await state.finish()
+
+    elif response == 404:
+        await bot.send_message(message.from_user.id, 'Пользователей с такими данными не найдено',
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
     else:
         await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вы ошиблись при вводе данных',
                                reply_markup=keyboards.CANCEL_KEYBOARD)

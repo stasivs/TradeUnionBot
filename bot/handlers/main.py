@@ -36,8 +36,8 @@ async def greeting(message: types.Message, state: FSMContext) -> None:
         await bot.send_message(message.from_user.id,
                                'Вас приветствует бот профкома! Вам необходимо пройти регистрацию')
         await bot.send_message(message.from_user.id,
-                               'Нажимая на кнопку «Регистрация» вы даете своё согласие на обработку '
-                               'персональных данных и получения важной информации, связанной с подачей '
+                               'Нажимая на кнопку «Регистрация», вы даете своё согласие на обработку '
+                               'персональных данных и получение важной информации, связанной с подачей '
                                'и приемом документов на материальную помощь',
                                reply_markup=keyboards.REGISTRATION_KEYBOARD)
     await message.delete()

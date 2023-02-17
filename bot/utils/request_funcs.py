@@ -19,7 +19,7 @@ async def get_profcome_schedule(course_name: str) -> dict:
     return {}
 
 
-async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
+async def get_student_info(pole_name: str, value: [str, int]) -> list[dict] | int:
     """Получаем информацию о студенте."""
 
     urls_dict = {
@@ -31,12 +31,13 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
     }
 
     pole = urls_dict[pole_name]
-    response = requests.get(f'{URL}/student/{pole}/{value}').json()
+    response = requests.get(f'{URL}/student/{pole}/{value}')
 
-    if response.get('data'):
-        stud_info = response['data']
-        return stud_info
-    return []
+    if response.status_code == 200:
+        stud_info = response.json()
+        return stud_info['data']
+
+    return response.status_code
 
 
 async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> list[dict]:
