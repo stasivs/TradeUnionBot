@@ -132,6 +132,50 @@ async def get_csv_file(message: types.Message, state: FSMContext) -> None:
     await state.finish()
 
 
+class RedactScheduleFSM(StatesGroup):
+    """Машина состояний - диалог редактирования расписания приёма документов."""
+    waiting_institute_name = State()
+    waiting_image_id = State()
+
+
+@super_admin_require
+async def redact_schedule(message: types.Message, state: FSMContext) -> None:
+    """Отлавливает команду '/redact_schedule'."""
+
+    await bot.send_message(message.from_user.id, 'Выберите название института',
+                           reply_markup=keyboards.INSTITUTE_NAME_KEYBOARD)
+    await RedactScheduleFSM.waiting_institute_name.set()
+
+
+async def obtain_institute_name(message: types.Message, state: FSMContext) -> None:
+    """Отлавливает имя института, вносит в state.proxy()."""
+
+    async with state.proxy() as data:
+        data['institute_name'] = message.text
+
+    await bot.send_message(message.from_user.id, 'Отправьте изображение с расписанием',
+                           reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    await RedactScheduleFSM.next()
+
+
+async def obtain_image_id(message: types.Message, state: FSMContext) -> None:
+    """Отлавливает изображение, вносит его id в state.proxy(), отправляет на сервер."""
+
+    async with state.proxy() as data:
+        data['image_id'] = message.photo[0].file_id
+        response = await request_funcs.redact_profcome_schedule(data['institute_name'], data['image_id'])
+
+    if response:
+        await bot.send_message(message.from_user.id, f'Расписание установлено',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+    else:
+        await bot.send_message(message.from_user.id, f'Не удалось установить расписание',
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+
+    await state.finish()
+
+
 def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
                                        state='*')
@@ -145,3 +189,7 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
                                 state=RedactStudentInfoFSM.waiting_confirm)
     dp.register_message_handler(add_many_students_info, commands=['add_students_data'])
     dp.register_message_handler(get_csv_file, content_types=['document'], state=AddStudentInfoFSM.waiting_csv_file)
+    dp.register_message_handler(redact_schedule, commands=['redact_schedule'])
+    dp.register_message_handler(obtain_institute_name, content_types=['text'],
+                                state=RedactScheduleFSM.waiting_institute_name)
+    dp.register_message_handler(obtain_image_id, content_types=['photo'], state=RedactScheduleFSM.waiting_image_id)

@@ -14,7 +14,7 @@ class GetProfcomeScheduleFSM(StatesGroup):
 async def get_profcome_schedule(message: types.Message) -> None:
     """Отлавливает команду о предоставлении расписания, запускает соответствующий диалог."""
 
-    await bot.send_message(message.from_user.id, 'Выберите свой институт',
+    await bot.send_message(message.from_user.id, 'Выберите название института',
                            reply_markup=keyboards.INSTITUTE_NAME_KEYBOARD)
     await GetProfcomeScheduleFSM.waiting_institute_name.set()
 
@@ -22,15 +22,16 @@ async def get_profcome_schedule(message: types.Message) -> None:
 async def obtain_institute_name(message: types.Message, state: FSMContext) -> None:
     """Отлавливает имя института и выдаёт соответствующее расписане."""
 
-    profcome_schedule = await request_funcs.get_profcome_schedule(message.text)
+    response = await request_funcs.get_profcome_schedule(message.text)
 
-    if profcome_schedule:
-        response = f'Расписание для {profcome_schedule["institute"]}: {profcome_schedule["timetable"]}'
-        await bot.send_message(message.from_user.id, response,
-                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+    if response:
+        await bot.send_photo(message.from_user.id, response['timetable'],
+                             reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+
     else:
         await bot.send_message(message.from_user.id, "Приношу извинения, в данный момент расписание недоступно",
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+
     await state.finish()
 
 

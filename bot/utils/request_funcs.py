@@ -19,6 +19,17 @@ async def get_profcome_schedule(course_name: str) -> dict:
     return {}
 
 
+async def redact_profcome_schedule(institute_name: str, image_id: str) -> dict:
+    """Редактируем расписание приёма доков для института."""
+
+    response = requests.post(f'{URL}/timetable/', json={'institute': institute_name, 'timetable': image_id})
+
+    if response.status_code == 201:
+        profcome_schedule = response.json()
+        return profcome_schedule
+    return {}
+
+
 async def get_student_info(pole_name: str, value: [str, int]) -> list[dict] | int:
     """Получаем информацию о студенте."""
 
