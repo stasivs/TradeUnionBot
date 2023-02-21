@@ -3,6 +3,7 @@ from aiogram.dispatcher import FSMContext, filters
 
 from utils import keyboards, request_funcs
 from bot_run import bot
+from utils.lang_parser import get_phrase
 
 
 async def cancel_handler(message: types.Message, state: FSMContext) -> None:
@@ -14,10 +15,10 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
 
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if check:
-        await bot.send_message(message.from_user.id, 'OK',
+        await bot.send_message(message.from_user.id, get_phrase('ok'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'OK',
+        await bot.send_message(message.from_user.id, get_phrase('ok'),
                                reply_markup=keyboards.REGISTRATION_KEYBOARD)
 
 
@@ -30,15 +31,11 @@ async def greeting(message: types.Message, state: FSMContext) -> None:
 
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
     if check:
-        await bot.send_message(message.from_user.id, 'Вас приветствует бот профкома!',
+        await bot.send_message(message.from_user.id, get_phrase('greeting_after_registration'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id,
-                               'Вас приветствует бот профкома! Вам необходимо пройти регистрацию')
-        await bot.send_message(message.from_user.id,
-                               'Нажимая на кнопку «Регистрация», вы даете своё согласие на обработку '
-                               'персональных данных и получение важной информации, связанной с подачей '
-                               'и приемом документов на материальную помощь',
+        await bot.send_message(message.from_user.id, get_phrase('greeting_reg_ask'))
+        await bot.send_message(message.from_user.id, get_phrase('ask_personal_agreement'),
                                reply_markup=keyboards.REGISTRATION_KEYBOARD)
     await message.delete()
 
@@ -51,7 +48,7 @@ def register_main_handlers(dp: Dispatcher) -> None:
 
 async def wtf_answering(message: types.Message, state: FSMContext) -> None:
     """Ответ на непонятные сообщения"""
-    await bot.send_message(message.from_user.id, 'Я вас не понимаю, но мне приятно, что вы со мной общаетесь')
+    await bot.send_message(message.from_user.id, get_phrase('not_understand'))
 
 
 def register_wtf_handler(dp: Dispatcher) -> None:

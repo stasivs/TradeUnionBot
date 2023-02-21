@@ -6,7 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from utils.request_funcs import get_request_key
 from config import TOKEN
 
-bot = Bot(TOKEN)
+bot = Bot(TOKEN, parse_mode='HTML')
 dp = Dispatcher(bot, storage=MemoryStorage())
 request_key = get_request_key()
 

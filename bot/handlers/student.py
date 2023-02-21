@@ -1,9 +1,10 @@
 from aiogram import Dispatcher, types
-from aiogram.dispatcher import FSMContext, filters
+from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from bot_run import bot
 from utils import keyboards, request_funcs
+from utils.lang_parser import get_phrase
 
 
 class GetProfcomeScheduleFSM(StatesGroup):
@@ -14,13 +15,13 @@ class GetProfcomeScheduleFSM(StatesGroup):
 async def get_profcome_schedule(message: types.Message) -> None:
     """Отлавливает команду о предоставлении расписания, запускает соответствующий диалог."""
 
-    await bot.send_message(message.from_user.id, 'Выберите название института',
+    await bot.send_message(message.from_user.id, get_phrase('choose_institute_name'),
                            reply_markup=keyboards.INSTITUTE_NAME_KEYBOARD)
     await GetProfcomeScheduleFSM.waiting_institute_name.set()
 
 
 async def obtain_institute_name(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает имя института и выдаёт соответствующее расписане."""
+    """Отлавливает имя института и выдаёт соответствующее расписание."""
 
     response = await request_funcs.get_profcome_schedule(message.text)
 
@@ -29,7 +30,7 @@ async def obtain_institute_name(message: types.Message, state: FSMContext) -> No
                              reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
     else:
-        await bot.send_message(message.from_user.id, "Приношу извинения, в данный момент расписание недоступно",
+        await bot.send_message(message.from_user.id, get_phrase('schedule_not_available'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
     await state.finish()
@@ -43,10 +44,10 @@ async def get_prof_id(message: types.Message) -> None:
 
     if stud_info:
         prof_id = stud_info[0]['profcard']
-        await bot.send_message(message.from_user.id, f'Номер профкарты: {prof_id}',
+        await bot.send_message(message.from_user.id, get_phrase('profcard_output', prof_id),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Пройдите регистрацию',
+        await bot.send_message(message.from_user.id, get_phrase('registration_require'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
 
@@ -61,11 +62,10 @@ async def registration(message: types.Message, state: FSMContext) -> None:
     res = await request_funcs.get_student_info("telegram_id", message.from_user.id)
 
     if res:
-        await bot.send_message(message.from_user.id, 'Вы уже прошли регистрацию',
+        await bot.send_message(message.from_user.id, get_phrase('registration_already_passed'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Введите номер своего студенческого билета, '
-                                                     'формат: 00-А-00000')
+        await bot.send_message(message.from_user.id, get_phrase('enter_your_student_book'))
         await RegistrationFSM.waiting_stud_info.set()
 
 
@@ -79,10 +79,10 @@ async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
     if stud_info:
         bd_id = stud_info[0]["id"]
         await request_funcs.redact_student_info(bd_id, 'telegram_id', telegram_id)
-        await bot.send_message(message.from_user.id, 'Регистрация пройдена',
+        await bot.send_message(message.from_user.id, get_phrase('registration_passed'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
-        await bot.send_message(message.from_user.id, 'Что-то не так, возможно, вас ещё нет у нас в базе данных',
+        await bot.send_message(message.from_user.id, get_phrase('registration_mistake'),
                                reply_markup=keyboards.REGISTRATION_KEYBOARD)
     await state.finish()
 
