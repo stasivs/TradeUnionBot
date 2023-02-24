@@ -29,23 +29,23 @@ async def obtain_pole_name(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['pole_name'] = message.text
 
-    if data['pole_name'] == 'Проф карта':
-        await bot.send_message(message.from_user.id, get_phrase('enter_profcard'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
+    pole_names_dict = {
+        'Проф карта': 'enter_profcard',
+        'Студенческий билет': 'enter_student_book',
+        'Фамилия студента': 'enter_surname',
+        'ФИО студента': 'enter_fio'
+    }
 
-    elif data['pole_name'] == 'Студенческий билет':
-        await bot.send_message(message.from_user.id, get_phrase('enter_student_book'),
+    try:
+        phrase = pole_names_dict[data['pole_name']]
+        await bot.send_message(message.from_user.id, get_phrase(phrase),
                                reply_markup=keyboards.CANCEL_KEYBOARD)
+        await GetStudentInfoFSM.next()
 
-    elif data['pole_name'] == 'Фамилия студента':
-        await bot.send_message(message.from_user.id, get_phrase('enter_surname'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
-
-    elif data['pole_name'] == 'ФИО студента':
-        await bot.send_message(message.from_user.id, get_phrase('enter_fio'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
-
-    await GetStudentInfoFSM.next()
+    except KeyError:
+        await bot.send_message(message.from_user.id, get_phrase('not_such_pole'),
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+        await state.finish()
 
 
 async def obtain_value(message: types.Message, state: FSMContext) -> None:
@@ -90,8 +90,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 def register_admin_handlers(dp: Dispatcher) -> None:
     """Регистрация админских хендлеров."""
     dp.register_message_handler(get_student_info, text='Поиск по базе данных', state=None)
-    dp.register_message_handler(obtain_pole_name, lambda x: x.text in ['Проф карта', 'Студенческий билет',
-                                                                       'Фамилия студента', 'ФИО студента'],
+    dp.register_message_handler(obtain_pole_name, content_types=['text'],
                                 state=GetStudentInfoFSM.waiting_pole_name)
     dp.register_message_handler(obtain_value, content_types=['text'],
                                 state=GetStudentInfoFSM.waiting_value)

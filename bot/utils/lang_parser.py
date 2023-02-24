@@ -3,7 +3,7 @@ import yaml
 
 def get_phrase(phrase_type: str, *args) -> str:
     try:
-        with open('/bot/bot_phrases.yml', 'r') as f:
+        with open('/bot/sources/bot_phrases.yml', 'r') as f:
             phrases_file = yaml.safe_load(f)
             phrase = phrases_file[phrase_type]
     except FileNotFoundError:
