@@ -12,6 +12,12 @@ class TimetableService:
             "timetable": timetable["timetable"],
         }
 
+    async def get_all_timetables(self) -> list:
+        timetables = []
+        async for timetable in timetable_collection.find():
+            timetables.append(self.timetable_helper(timetable))
+        return timetables
+
     async def get_timetable(self, institute: str) -> dict:
         timetable = await timetable_collection.find_one({"institute": institute})
         if not timetable:
@@ -19,8 +25,14 @@ class TimetableService:
         return self.timetable_helper(timetable)
 
     async def add_timetable(self, timetable: dict) -> dict:
-        timetable = await timetable_collection.insert_one(timetable)
-        new_timetable = await timetable_collection.find_one({"_id": timetable.inserted_id})
+        old_timetable = await timetable_collection.find_one({"institute": timetable["institute"]})
+        if old_timetable:
+            await timetable_collection.update_one({"_id": old_timetable["_id"]}, {"$set": timetable})
+            timetable_id = old_timetable["_id"]
+        else:
+            timetable = await timetable_collection.insert_one(timetable)
+            timetable_id = timetable.inserted_id
+        new_timetable = await timetable_collection.find_one({"_id": timetable_id})
         return self.timetable_helper(new_timetable)
 
 
