@@ -60,16 +60,18 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
 
     if isinstance(response, list):
         for student in response:
-            await bot.send_message(message.from_user.id, get_phrase('stud_info',
-                                                                    student['group'],
-                                                                    student['surname'],
-                                                                    student['name'].split()[0],
-                                                                    student['name'].split()[1],
-                                                                    student['sex'],
-                                                                    student['financing_form'],
-                                                                    student['profcard'],
-                                                                    student['student_book'],
-                                                                    student['role']),
+            await bot.send_message(message.from_user.id,
+                                   get_phrase('stud_info',
+                                              student['group'],
+                                              student['surname'],
+                                              student['name'].split()[0],
+                                              student['name'].split()[1]
+                                              if len(student['name'].split()) > 2 else "Отсутствует",
+                                              student['sex'],
+                                              student['financing_form'],
+                                              student['profcard'],
+                                              student['student_book'],
+                                              student['role']),
                                    reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id,
                                                                                        student["id"]))
 

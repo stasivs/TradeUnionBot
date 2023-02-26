@@ -116,7 +116,7 @@ async def get_csv_file(message: types.Message, state: FSMContext) -> None:
             res = await request_funcs.add_many_student_data(await csv_parser(str(file.read(), 'utf-8')))
             if res:
                 await bot.send_message(message.from_user.id,
-                                       get_phrase('bd_update_success', res["students_added_counter"]),
+                                       get_phrase('bd_update_success', str(res["students_added_counter"])),
                                        reply_markup=await keyboards.keyboard_choice(message.from_user.id))
             else:
                 await bot.send_message(message.from_user.id, get_phrase('bd_update_fail'),
