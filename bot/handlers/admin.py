@@ -52,7 +52,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
     """
     Отлавливает значение известного поля, вносит в state.proxy(),
     вызывает соответствующую функцию обращения к серверу, выводит информацию о студенте,
-    выдаёт инлайн кнопку для суперадмина
+    выдаёт инлайн кнопку для суперадмина.
     """
     async with state.proxy() as data:
         data['value'] = message.text.title()

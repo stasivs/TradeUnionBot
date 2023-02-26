@@ -93,7 +93,7 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
     await state.finish()
 
 
-class AddStudentInfoFSM(StatesGroup):
+class AddManyStudentsInfoFSM(StatesGroup):
     """Машина состояний - диалог добавления ин-фы о студентах."""
     waiting_csv_file = State()
 
@@ -104,7 +104,7 @@ async def add_many_students_info(message: types.Message, state: FSMContext) -> N
 
     await bot.send_message(message.from_user.id, get_phrase('ask_file'),
                            reply_markup=keyboards.CANCEL_KEYBOARD)
-    await AddStudentInfoFSM.waiting_csv_file.set()
+    await AddManyStudentsInfoFSM.waiting_csv_file.set()
 
 
 async def get_csv_file(message: types.Message, state: FSMContext) -> None:
@@ -184,7 +184,7 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(obtain_confirm, lambda x: x.text in ['Да', 'Нет', 'да', 'нет'],
                                 state=RedactStudentInfoFSM.waiting_confirm)
     dp.register_message_handler(add_many_students_info, commands=['add_students_data'])
-    dp.register_message_handler(get_csv_file, content_types=['document'], state=AddStudentInfoFSM.waiting_csv_file)
+    dp.register_message_handler(get_csv_file, content_types=['document'], state=AddManyStudentsInfoFSM.waiting_csv_file)
     dp.register_message_handler(redact_schedule, commands=['redact_schedule'])
     dp.register_message_handler(obtain_institute_name, content_types=['text'],
                                 state=RedactScheduleFSM.waiting_institute_name)

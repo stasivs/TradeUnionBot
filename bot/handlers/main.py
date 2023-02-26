@@ -16,7 +16,7 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
         await state.finish()
 
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
-    if check:
+    if isinstance(check, list):
         await bot.send_message(message.from_user.id, get_phrase('ok'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
@@ -32,7 +32,7 @@ async def greeting(message: types.Message, state: FSMContext) -> None:
         await state.finish()
 
     check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
-    if check:
+    if isinstance(check, list):
         await bot.send_message(message.from_user.id, get_phrase('greeting_after_registration'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
@@ -64,7 +64,7 @@ async def registration(message: types.Message, state: FSMContext) -> None:
 
     res = await request_funcs.get_student_info("telegram_id", message.from_user.id)
 
-    if res:
+    if isinstance(res, list):
         await bot.send_message(message.from_user.id, get_phrase('registration_already_passed'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
     else:
@@ -79,7 +79,7 @@ async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
     telegram_id = message.from_user.id
     stud_info = await request_funcs.get_student_info("Студенческий билет", stud_id)
 
-    if stud_info:
+    if isinstance(stud_info, list):
         bd_id = stud_info[0]["id"]
         await request_funcs.redact_student_info(bd_id, 'telegram_id', telegram_id)
         await bot.send_message(message.from_user.id, get_phrase('registration_passed'),
