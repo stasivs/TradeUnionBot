@@ -15,13 +15,8 @@ async def cancel_handler(message: types.Message, state: FSMContext) -> None:
     if current_state is not None:
         await state.finish()
 
-    check = await request_funcs.get_student_info("telegram_id", message.from_user.id)
-    if isinstance(check, list):
-        await bot.send_message(message.from_user.id, get_phrase('ok'),
-                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
-    else:
-        await bot.send_message(message.from_user.id, get_phrase('ok'),
-                               reply_markup=keyboards.REGISTRATION_KEYBOARD)
+    await bot.send_message(message.from_user.id, get_phrase('ok'),
+                           reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
 
 async def greeting(message: types.Message, state: FSMContext) -> None:
@@ -75,7 +70,7 @@ async def registration(message: types.Message, state: FSMContext) -> None:
 async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
     """Отлавливает номер студенческого при запущенном диалоге RegistrationFSM, вносит ин-фу в бд."""
 
-    stud_id = message.text
+    stud_id = message.text.title()
     telegram_id = message.from_user.id
     stud_info = await request_funcs.get_student_info("Студенческий билет", stud_id)
 

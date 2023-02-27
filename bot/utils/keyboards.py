@@ -108,21 +108,24 @@ MATHELP_DOCS_INLINE_KEYBOARD.add(INLINE_BUTTON_INN).add(INLINE_BUTTON_BLANK)
 
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
-    if await check_role.is_student_super_admin(user_id):
+    if await check_role.check_student_role(user_id) == 'SuperAdmin':
         logging.warning(f"SuperAdmin is online, id: {user_id}")
         return ADMIN_KEYBOARD
 
-    elif await check_role.is_student_admin(user_id):
+    elif await check_role.check_student_role(user_id) == 'Admin':
         return ADMIN_KEYBOARD
 
-    else:
+    elif await check_role.check_student_role(user_id) == 'User':
         return STUDENT_KEYBOARD
+
+    else:
+        return REGISTRATION_KEYBOARD
 
 
 async def inline_keyboard_choice(user_id: int, student_bd_id: int) -> InlineKeyboardMarkup:
     redact_keyboard = InlineKeyboardMarkup()
 
-    if await check_role.is_student_super_admin(user_id):
+    if await check_role.check_student_role(user_id) == 'SuperAdmin':
         button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_bd_id}')
         redact_keyboard.add(button_redact)
 

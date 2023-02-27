@@ -66,7 +66,7 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
                                               student['surname'],
                                               student['name'].split()[0],
                                               student['name'].split()[1]
-                                              if len(student['name'].split()) > 2 else "Отсутствует",
+                                              if len(student['name'].split()) > 1 else "Отсутствует",
                                               student['sex'],
                                               student['financing_form'],
                                               student['profcard'],
