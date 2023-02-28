@@ -1,18 +1,21 @@
 import requests
 import uuid
+import json
 from cryptography.fernet import Fernet
+
 
 from config import URL
 from common_key import COMMON_KEY
 
+common_key = Fernet(COMMON_KEY)
+
 async def get_request_key(pole="token") -> str:
     """Получаем ключ для последующих запросов."""
-    answer = requests.get(f"{URL}/student/{pole}") # Synchronize URL
-    json = answer.json()
-    secret_uuid = json["data"]
-    common_key = Fernet(COMMON_KEY) # Here is COMMON_KEY
-    token = common_key.decrypt(secret_uuid) 
-    return uuid.UUID(token.hex())
+    secret_response = requests.get(f"{URL}/student/{pole}") # Synchronize URL
+    response = json.loads(common_key.decrypt(secret_response.content))
+    token = response["data"]
+    # Here is COMMON_KEY
+    return uuid.UUID(token)
 
 
 async def get_profcome_schedule(course_name: str) -> dict:
@@ -42,8 +45,8 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
     token = await get_request_key()
     params = {"token": token}
     pole = urls_dict[pole_name]
-    response = requests.get(f'{URL}/student/{pole}/{value}', params=params).json()
-
+    secret_response = requests.get(f'{URL}/student/{pole}/{value}', params=params)
+    response = json.loads(common_key.decrypt(secret_response.content))
     if response.get('data'):
         stud_info = response['data']
         return stud_info

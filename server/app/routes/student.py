@@ -1,12 +1,10 @@
 from common_key import COMMON_KEY
-from fastapi import APIRouter, Body, status, HTTPException, BackgroundTasks
-from fastapi.encoders import jsonable_encoder
-from re import compile
 from cryptography.fernet import Fernet
 import uuid
+import json
 from os import environ
 
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, status, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 
 from services.student import StudentService, get_student_service
@@ -22,7 +20,6 @@ from models.student import (
 )
 
 router = APIRouter()
-
 
 @router.on_event("startup")
 async def init_superadmin():
@@ -181,10 +178,8 @@ async def delete_student(
     response_model=dict)
 async def get_secret_token(background_tasks: BackgroundTasks) -> dict:
     # Common key. Bot also has it
-    common_key = Fernet(COMMON_KEY)  # Here is COMMON_KEY
     url_uuid = uuid.uuid4()
-    secret_url_uuid = common_key.encrypt(url_uuid.bytes)
     await queue.put(url_uuid) 
     # Background task for detecting unused synchronized links
     background_tasks.add_task(background_check)
-    return {'data': secret_url_uuid}
+    return {'data': url_uuid}
