@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, status, HTTPException, Depends
 from models.timetable import TimetableSchema
 from fastapi.encoders import jsonable_encoder
 from services.timetable import TimetableService, get_timetable_service
-from services.encryption import verify_token, queue, background_check
+from services.encryption import verify_token
 
 router = APIRouter()
 

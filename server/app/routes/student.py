@@ -1,14 +1,13 @@
-from common_key import COMMON_KEY
+
 from cryptography.fernet import Fernet
 import uuid
-import json
 from os import environ
 
-from fastapi import APIRouter, Body, Depends, status, BackgroundTasks
+from fastapi import APIRouter, Body, Depends, status
 from fastapi.encoders import jsonable_encoder
 
 from services.student import StudentService, get_student_service
-from services.encryption import verify_token, queue, background_check
+from services.encryption import verify_token, redis 
 from models.student import (
     # ProfCard,
     # StudentBook,
@@ -176,10 +175,7 @@ async def delete_student(
     response_description="Secret key for detecting bot",
     status_code=status.HTTP_200_OK,
     response_model=dict)
-async def get_secret_token(background_tasks: BackgroundTasks) -> dict:
-    # Common key. Bot also has it
+async def get_secret_token() -> dict:
     url_uuid = uuid.uuid4()
-    await queue.put(url_uuid) 
-    # Background task for detecting unused synchronized links
-    background_tasks.add_task(background_check)
+    await redis.set(str(url_uuid), str(url_uuid), 3)
     return {'data': url_uuid}

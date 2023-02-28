@@ -4,7 +4,9 @@ from starlette.responses import Response
 from routes.student import router as StudentRouter
 from routes.timetable import router as TimetableRouter
 from cryptography.fernet import Fernet
-from common_key import COMMON_KEY
+from os import environ
+
+COMMON_KEY = environ.get('COMMON_KEY')
 
 app = FastAPI()
 

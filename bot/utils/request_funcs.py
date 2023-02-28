@@ -2,10 +2,11 @@ import requests
 import uuid
 import json
 from cryptography.fernet import Fernet
-
+from os import environ
 
 from config import URL
-from common_key import COMMON_KEY
+
+COMMON_KEY = environ.get('COMMON_KEY')
 
 common_key = Fernet(COMMON_KEY)
 
