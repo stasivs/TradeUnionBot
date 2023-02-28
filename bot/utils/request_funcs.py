@@ -32,7 +32,18 @@ async def get_profcome_schedule(course_name: str) -> dict:
     return {}
 
 
-async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
+async def redact_profcome_schedule(institute_name: str, image_id: str) -> dict:
+    """Редактируем расписание приёма доков для института."""
+
+    response = requests.post(f'{URL}/timetable/', json={'institute': institute_name, 'timetable': image_id})
+
+    if response.status_code == 201:
+        profcome_schedule = response.json()
+        return profcome_schedule
+    return {}
+
+
+async def get_student_info(pole_name: str, value: [str, int]) -> list[dict] | int:
     """Получаем информацию о студенте."""
 
     urls_dict = {
@@ -46,12 +57,12 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict]:
     token = await get_request_key()
     params = {"token": token}
     pole = urls_dict[pole_name]
-    secret_response = requests.get(f'{URL}/student/{pole}/{value}', params=params)
-    response = json.loads(common_key.decrypt(secret_response.content))
-    if response.get('data'):
-        stud_info = response['data']
-        return stud_info
-    return []
+    response = requests.get(f'{URL}/student/{pole}/{value}', params=params)
+    if secret_response.status_code == 200:
+        stud_info = json.loads(common_key.decrypt(response.content))
+        return stud_info['data']
+    return response.status_code
+
 
 
 async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> list[dict]:
