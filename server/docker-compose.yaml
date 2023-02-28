@@ -12,6 +12,14 @@ services:
     networks:
       - profkom_server_net
 
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - '6380:6379'
+    networks:
+      - profkom_server_net
+
   app:
     build: ./app
     restart: always

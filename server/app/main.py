@@ -28,4 +28,4 @@ async def data_encryption(request: Request, call_next):
                     status_code=response.status_code)
 
 
-uvicorn.run(app, host="0.0.0.0", port=8000)
+#uvicorn.run(app, host="0.0.0.0", port=8000)
