@@ -54,6 +54,14 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
         await bot.send_message(message.from_user.id, get_phrase('enter_new_role'),
                                reply_markup=keyboards.ROLE_KEYBOARD)
 
+    elif data['pole_name'] == 'Телеграм ID':
+        await bot.send_message(message.from_user.id, get_phrase('enter_new_tg_id'),
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
+    elif data['pole_name'] == 'Комментарий':
+        await bot.send_message(message.from_user.id, get_phrase('enter_new_comment'),
+                               reply_markup=keyboards.CANCEL_KEYBOARD)
+
     await RedactStudentInfoFSM.next()
 
 

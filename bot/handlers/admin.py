@@ -62,16 +62,19 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
         for student in response:
             await bot.send_message(message.from_user.id,
                                    get_phrase('stud_info',
-                                              student['group'],
-                                              student['surname'],
-                                              student['name'].split()[0],
-                                              student['name'].split()[1]
+                                              student['group'] if student['group'] else "Отсутствует",
+                                              student['surname'] if student['surname'] else "Отсутствует",
+                                              student['name'].split()[0] if student['name'] else "Отсутствует",
+                                              student['name'].split()[1] if student['name'] else "Отсутствует"
                                               if len(student['name'].split()) > 1 else "Отсутствует",
-                                              student['sex'],
-                                              student['financing_form'],
-                                              student['profcard'],
-                                              student['student_book'],
-                                              student['role']),
+                                              # student['birthdate'] if student['birthdate'] else "Отсутствует",
+                                              student['sex'] if student['sex'] else "Отсутствует",
+                                              student['financing_form'] if student['financing_form'] else "Отсутствует",
+                                              student['profcard'] if student['profcard'] else "Отсутствует",
+                                              student['student_book'] if student['student_book'] else "Отсутствует",
+                                              student['role'] if student['role'] else "Отсутствует",
+                                              student['telegram_id'] if student['telegram_id'] else "Отсутствует"),
+                                   # student['comment'] if student['comment'] else "Отсутствует"),
                                    reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id,
                                                                                        student["id"]))
 

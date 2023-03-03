@@ -41,7 +41,7 @@ async def check_student_role(telegram_id: int) -> str:
     role = await redis.get(telegram_id)
 
     if not role:
-        stud_info = await get_student_info('telegram_id', telegram_id)
+        stud_info = await get_student_info('Телеграм ID', telegram_id)
         if isinstance(stud_info, list):
             role = stud_info[0]['role']
         else:

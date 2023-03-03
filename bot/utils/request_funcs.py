@@ -38,7 +38,7 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict] | in
         'Фамилия студента': 'by_surname',
         'Студенческий билет': 'by_student_book',
         'ФИО студента': 'by_fio',
-        'telegram_id': 'by_telegram_id'
+        'Телеграм ID': 'by_telegram_id'
     }
 
     pole = urls_dict[pole_name]
@@ -58,8 +58,9 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
         'Проф карта': 'profcard',
         'Причина мат помощи': 'MP_case',
         'Студенческий билет': 'student_book',
-        'telegram_id': 'telegram_id',
-        'Роль пользователя': 'role'
+        'Телеграм ID': 'telegram_id',
+        'Роль пользователя': 'role',
+        'Комментарий': 'comment'
     }
 
     pole = urls_dict[pole_name]

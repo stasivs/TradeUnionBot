@@ -40,7 +40,7 @@ async def get_prof_id(message: types.Message) -> None:
     """Отлавливает команду о предоставлении номера профкарты, используя id пользователя
     вызывает соответствующую функцию обращения к серверу."""
 
-    stud_info = await request_funcs.get_student_info('telegram_id', message.from_user.id)
+    stud_info = await request_funcs.get_student_info('Телеграм ID', message.from_user.id)
 
     if isinstance(stud_info, list):
         prof_id = stud_info[0]['profcard']
