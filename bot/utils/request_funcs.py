@@ -38,7 +38,8 @@ async def get_student_info(pole_name: str, value: [str, int]) -> list[dict] | in
         'Фамилия студента': 'by_surname',
         'Студенческий билет': 'by_student_book',
         'ФИО студента': 'by_fio',
-        'Телеграм ID': 'by_telegram_id'
+        'Телеграм ID': 'by_telegram_id',
+        'bd_id': 'by_student_id',
     }
 
     pole = urls_dict[pole_name]

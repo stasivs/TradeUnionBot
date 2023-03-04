@@ -1,5 +1,6 @@
 from os import environ
 
+from bson import ObjectId
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.encoders import jsonable_encoder
 
@@ -20,7 +21,7 @@ router = APIRouter()
 @router.on_event("startup")
 async def init_superadmin():
     student_service = await get_student_service()
-    await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
+    # await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
 
 
 @router.post(
@@ -142,6 +143,19 @@ async def get_student_data_by_telegram_id(
         student_service: StudentService = Depends(get_student_service),
 ) -> dict:
     return {'data': await student_service.get_student(searching_dict={"telegram_id": telegram_id})}
+
+
+@router.get(
+    path='/by_student_id/{student_id}',
+    response_description="Student student_id retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=ResponseModel,
+)
+async def get_student_data_by_student_id(
+        student_id: str,
+        student_service: StudentService = Depends(get_student_service),
+) -> dict:
+    return {'data': await student_service.get_student(searching_dict={"_id": ObjectId(student_id)})}
 
 
 @router.delete(

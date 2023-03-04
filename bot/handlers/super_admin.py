@@ -62,6 +62,11 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
         await bot.send_message(message.from_user.id, get_phrase('enter_new_comment'),
                                reply_markup=keyboards.CANCEL_KEYBOARD)
 
+    else:
+        await bot.send_message(message.from_user.id, get_phrase('not_such_pole'),
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+        await state.finish()
+
     await RedactStudentInfoFSM.next()
 
 
@@ -81,12 +86,14 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
 
     if message.text.lower() == 'да':
         async with state.proxy() as data:
+            stud_info = await request_funcs.get_student_info('bd_id', data['bd_id'])
+            user_cur_tg_id = stud_info[0]['telegram_id']
             response = await request_funcs.redact_student_info(data['bd_id'], data['pole_name'], data['new_value'])
 
             if response:
 
-                if response[0]['telegram_id']:
-                    await redis.delete(response[0]['telegram_id'])
+                if user_cur_tg_id:
+                    await redis.delete(user_cur_tg_id)
 
                 await bot.send_message(message.from_user.id, get_phrase('changes_done'),
                                        reply_markup=await keyboards.keyboard_choice(message.from_user.id))
@@ -185,7 +192,7 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
                                        state='*')
     dp.register_message_handler(obtain_change_pole,
-                                lambda x: x.text in ['Проф карта', 'Студенческий билет', 'Роль пользователя'],
+                                content_types=['text'],
                                 state=RedactStudentInfoFSM.waiting_change_pole)
     dp.register_message_handler(obtain_new_value, content_types=['text'],
                                 state=RedactStudentInfoFSM.waiting_new_value)

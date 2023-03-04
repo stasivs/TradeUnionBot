@@ -16,12 +16,14 @@ class StudentService:
             "group": student["group"],
             "surname": student["surname"],
             "name": student["name"],
+            "birthdate": student["birthdate"],
             "sex": student["sex"],
             "financing_form": student["financing_form"],
             "profcard": student["profcard"],
             "student_book": student["student_book"],
             "role": student["role"],
             "MP_case": student["MP_case"],
+            "comment": student["comment"],
             "telegram_id": student["telegram_id"],
         }
 
@@ -72,24 +74,24 @@ class StudentService:
         except InvalidId:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
 
-    async def add_initial_superadmin(self, telegram_id: str) -> None:
-        try:
-            await self.get_student(searching_dict={"surname": "SuperAdmin"})
-        except HTTPException:
-            await self.add_student(student_data={
-                "institute": "SuperAdmin",
-                "course": 999,
-                "group": "SuperAdmin",
-                "surname": "SuperAdmin",
-                "name": "SuperAdmin",
-                "sex": "муж.",
-                "financing_form": "бюджет",
-                "profcard": None,
-                "student_book": None,
-                "role": "SuperAdmin",
-                "MP_case": "SuperAdmin",
-                "telegram_id": telegram_id,
-            })
+    # async def add_initial_superadmin(self, telegram_id: str) -> None:
+    #     try:
+    #         await self.get_student(searching_dict={"surname": "SuperAdmin"})
+    #     except HTTPException:
+    #         await self.add_student(student_data={
+    #             "institute": "SuperAdmin",
+    #             "course": 999,
+    #             "group": "SuperAdmin",
+    #             "surname": "SuperAdmin",
+    #             "name": "SuperAdmin",
+    #             "sex": "муж.",
+    #             "financing_form": "бюджет",
+    #             "profcard": None,
+    #             "student_book": None,
+    #             "role": "SuperAdmin",
+    #             "MP_case": "SuperAdmin",
+    #             "telegram_id": telegram_id,
+    #         })
 
 
 async def get_student_service() -> StudentService:

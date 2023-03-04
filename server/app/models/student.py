@@ -1,6 +1,7 @@
 from pydantic import BaseModel, constr
 from typing import Optional, Literal
 
+
 # ProfCard = constr(regex=r"^\d{2}-\d{3,4}$")
 # StudentBook = constr(regex=r"^\d{2}-\w-\d{5}$")
 
@@ -11,12 +12,14 @@ class StudentSchema(BaseModel):
     group: str
     surname: str
     name: str
+    birthdate: Optional[str]
     sex: Literal["муж.", "жен."]
     financing_form: Literal["бюджет", "контракт"]
     profcard: Optional[str]
     student_book: Optional[str]
     role: Literal["User", "Admin", "SuperAdmin"]
     MP_case: Optional[str]
+    comment: Optional[str]
     telegram_id: Optional[str]
 
 
@@ -26,6 +29,7 @@ class UpdateStudentSchema(BaseModel):
     group: Optional[str]
     surname: Optional[str]
     name: Optional[str]
+    birthdate: Optional[str]
     sex: Optional[Literal["муж.", "жен."]]
     financing_form: Optional[Literal["бюджет", "контракт"]]
     # profcard: Optional[ProfCard]
@@ -34,6 +38,7 @@ class UpdateStudentSchema(BaseModel):
     student_book: Optional[str]
     role: Optional[Literal["User", "Admin", "SuperAdmin"]]
     MP_case: Optional[str]
+    comment: Optional[str]
     telegram_id: Optional[str]
 
 
