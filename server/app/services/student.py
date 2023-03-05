@@ -74,24 +74,26 @@ class StudentService:
         except InvalidId:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student doesn't exist.")
 
-    # async def add_initial_superadmin(self, telegram_id: str) -> None:
-    #     try:
-    #         await self.get_student(searching_dict={"surname": "SuperAdmin"})
-    #     except HTTPException:
-    #         await self.add_student(student_data={
-    #             "institute": "SuperAdmin",
-    #             "course": 999,
-    #             "group": "SuperAdmin",
-    #             "surname": "SuperAdmin",
-    #             "name": "SuperAdmin",
-    #             "sex": "муж.",
-    #             "financing_form": "бюджет",
-    #             "profcard": None,
-    #             "student_book": None,
-    #             "role": "SuperAdmin",
-    #             "MP_case": "SuperAdmin",
-    #             "telegram_id": telegram_id,
-    #         })
+    async def add_initial_superadmin(self, telegram_id: str) -> None:
+        try:
+            await self.get_student(searching_dict={"surname": "SuperAdmin"})
+        except HTTPException:
+            await self.add_student(student_data={
+                "institute": "SuperAdmin",
+                "course": 999,
+                "group": "SuperAdmin",
+                "surname": "SuperAdmin",
+                "name": "SuperAdmin",
+                "birthdate": None,
+                "sex": "муж.",
+                "financing_form": "бюджет",
+                "profcard": None,
+                "student_book": None,
+                "role": "SuperAdmin",
+                "MP_case": "SuperAdmin",
+                "comment": None,
+                "telegram_id": telegram_id,
+            })
 
 
 async def get_student_service() -> StudentService:

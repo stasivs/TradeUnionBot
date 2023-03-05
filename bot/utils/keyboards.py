@@ -125,11 +125,18 @@ async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
         return REGISTRATION_KEYBOARD
 
 
-async def inline_keyboard_choice(user_id: int, student_bd_id: int) -> InlineKeyboardMarkup:
+async def inline_keyboard_choice(user_id: int, student_bd_id: int, telegram_id: str | None) -> InlineKeyboardMarkup:
     redact_keyboard = InlineKeyboardMarkup()
 
     if await check_role.check_student_role(user_id) == 'SuperAdmin':
-        button_redact = InlineKeyboardButton(text='Редактировать', callback_data=f'redact {student_bd_id}')
+
+        if telegram_id:
+            button_redact = InlineKeyboardButton(text='Редактировать',
+                                                 callback_data=f'redact {student_bd_id} {telegram_id}')
+        else:
+            button_redact = InlineKeyboardButton(text='Редактировать',
+                                                 callback_data=f'redact {student_bd_id}')
+
         redact_keyboard.add(button_redact)
 
     else:

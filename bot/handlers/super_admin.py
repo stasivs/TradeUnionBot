@@ -28,7 +28,9 @@ async def redact_student_info(callback_query: types.CallbackQuery, state: FSMCon
     await RedactStudentInfoFSM.redact_student_info.set()
 
     async with state.proxy() as data:
-        data['bd_id'] = callback_query.data.replace('redact ', '')
+        callback_data = callback_query.data.replace('redact ', '').split()
+        data['bd_id'] = callback_data[0]
+        data['cur_telegram_id'] = callback_data[1] if len(callback_data) > 1 else None
 
     await bot.send_message(callback_query.from_user.id, get_phrase('choose_field_for_change'),
                            reply_markup=keyboards.CHANGE_POLE_KEYBOARD)
@@ -85,15 +87,14 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
     """Отлавливает подтверждение команды об изменении бд, вызывает соответствующую функцию обращения к серверу."""
 
     if message.text.lower() == 'да':
+
         async with state.proxy() as data:
-            stud_info = await request_funcs.get_student_info('bd_id', data['bd_id'])
-            user_cur_tg_id = stud_info[0]['telegram_id']
             response = await request_funcs.redact_student_info(data['bd_id'], data['pole_name'], data['new_value'])
 
             if response:
 
-                if user_cur_tg_id:
-                    await redis.delete(user_cur_tg_id)
+                if data['cur_telegram_id']:
+                    await redis.delete(data['cur_telegram_id'])
 
                 await bot.send_message(message.from_user.id, get_phrase('changes_done'),
                                        reply_markup=await keyboards.keyboard_choice(message.from_user.id))

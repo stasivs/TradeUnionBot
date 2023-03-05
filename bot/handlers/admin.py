@@ -76,7 +76,8 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
                                               student['telegram_id'] if student['telegram_id'] else "Отсутствует",
                                               student['comment'] if student['comment'] else "Отсутствует"),
                                    reply_markup=await keyboards.inline_keyboard_choice(message.from_user.id,
-                                                                                       student["id"]))
+                                                                                       student["id"],
+                                                                                       student['telegram_id']))
 
         await bot.send_message(message.from_user.id, get_phrase('students_shown'),
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))

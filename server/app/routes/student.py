@@ -21,7 +21,7 @@ router = APIRouter()
 @router.on_event("startup")
 async def init_superadmin():
     student_service = await get_student_service()
-    # await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
+    await student_service.add_initial_superadmin(telegram_id=environ.get("SUPERADMIN_TG_ID"))
 
 
 @router.post(
