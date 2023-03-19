@@ -2,8 +2,10 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from database import student_collection
 from fastapi import status, HTTPException
+from fastapi.responses import FileResponse
 
 from models.student import UpdateStudentSchema
+from utils.csv_func import get_list_from_dict, write_csv
 
 
 class StudentService:
@@ -16,6 +18,7 @@ class StudentService:
             "group": student["group"],
             "surname": student["surname"],
             "name": student["name"],
+            "second_name": student["second_name"],
             "birthdate": student["birthdate"],
             "sex": student["sex"],
             "financing_form": student["financing_form"],
@@ -30,7 +33,8 @@ class StudentService:
     async def get_all_students(self) -> list:
         students = []
         async for student in student_collection.find():
-            students.append(self.student_helper(student))
+            if not student["surname"] == "SuperAdmin":
+                students.append(self.student_helper(student))
         return students
 
     async def add_student(self, student_data: dict) -> list[dict]:
@@ -58,8 +62,8 @@ class StudentService:
 
     async def get_student(self, searching_dict: dict) -> list[dict]:
         if "fio" in searching_dict:
-            surname, *name = searching_dict["fio"].split()
-            searching_dict = {"surname": surname, "name": " ".join(name)}
+            surname, name, second_name = searching_dict["fio"].split()
+            searching_dict = {"surname": surname, "name": name, "second_name": second_name}
         students = []
         async for student in student_collection.find(searching_dict):
             students.append(self.student_helper(student))
@@ -84,6 +88,7 @@ class StudentService:
                 "group": "SuperAdmin",
                 "surname": "SuperAdmin",
                 "name": "SuperAdmin",
+                "second_name": "SuperAdmin",
                 "birthdate": None,
                 "sex": "муж.",
                 "financing_form": "бюджет",
@@ -94,6 +99,15 @@ class StudentService:
                 "comment": None,
                 "telegram_id": telegram_id,
             })
+
+    async def get_all_data_file(self):
+        data = await get_list_from_dict(input_data=await self.get_all_students())
+        path, filename = await write_csv(data=data)
+        return FileResponse(
+            path=path,
+            filename=filename,
+            media_type="multipart/form-data",
+        )
 
 
 async def get_student_service() -> StudentService:

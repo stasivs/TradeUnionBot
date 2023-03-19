@@ -4,6 +4,8 @@ services:
     build: ./app
     env_file: .env
     command: "pytest -vv"
+    volumes:
+      - ./app:/app
     depends_on:
       - mongodb
 

@@ -12,6 +12,7 @@ class StudentSchema(BaseModel):
     group: str
     surname: str
     name: str
+    second_name: Optional[str]
     birthdate: Optional[str]
     sex: Literal["муж.", "жен."]
     financing_form: Literal["бюджет", "контракт"]
@@ -29,6 +30,7 @@ class UpdateStudentSchema(BaseModel):
     group: Optional[str]
     surname: Optional[str]
     name: Optional[str]
+    second_name: Optional[str]
     birthdate: Optional[str]
     sex: Optional[Literal["муж.", "жен."]]
     financing_form: Optional[Literal["бюджет", "контракт"]]

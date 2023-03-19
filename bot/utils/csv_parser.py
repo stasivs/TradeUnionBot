@@ -7,12 +7,14 @@ async def csv_parser(data: str) -> list[dict]:
     for string in data_split:
         student_data = [val if val else None for val in string.split(';')]
         logging.warning(student_data)
+        surname, name, *second_name = student_data[3].split()
         parsed_student_data = {
             "institute": student_data[0],
             "course": student_data[1],
             "group": student_data[2],
-            "surname": student_data[3].split()[0],
-            "name": ' '.join(student_data[3].split()[1:]),
+            "surname": surname,
+            "name": name,
+            "second_name": " ".join(second_name),
             "birthdate": student_data[4],
             "sex": student_data[5],
             "financing_form": student_data[6],

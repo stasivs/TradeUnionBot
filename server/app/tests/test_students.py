@@ -18,7 +18,8 @@ async def test_create_students(async_client: AsyncClient):
         "course": 1,
         "group": "PGS-1",
         "surname": "Иванов",
-        "name": "Иван Иванович",
+        "name": "Иван",
+        "second_name": "Иванович",
         "sex": "муж.",
         "financing_form": "бюджет",
         "profcard": "11-1111",
@@ -30,7 +31,8 @@ async def test_create_students(async_client: AsyncClient):
         "course": 2,
         "group": "IGES-2",
         "surname": "Петров",
-        "name": "Иван Петрович",
+        "name": "Иван",
+        "second_name": "Петрович",
         "sex": "муж.",
         "financing_form": "бюджет",
         "profcard": "22-2222",
@@ -42,7 +44,8 @@ async def test_create_students(async_client: AsyncClient):
         "course": 3,
         "group": "PGS-3",
         "surname": "Петров",
-        "name": "Иван Петрович",
+        "name": "Иван",
+        "second_name": "Петрович",
         "sex": "муж.",
         "financing_form": "бюджет",
         "profcard": "33-3333",
@@ -50,16 +53,29 @@ async def test_create_students(async_client: AsyncClient):
         "role": "Admin",
         "telegram_id": "999",
     }
+    student_4 = {
+        "institute": "PGS",
+        "course": 4,
+        "group": "PGS-3",
+        "surname": "Дмитров",
+        "name": "Дмитрий",
+        "second_name": None,
+        "sex": "муж.",
+        "financing_form": "бюджет",
+        "profcard": "44-4444",
+        "student_book": "44-D-44444",
+        "role": "User",
+    }
     response = await async_client.post(
         url="student/add_many",
-        json={"data": [student_1, student_2, student_3]}
+        json={"data": [student_1, student_2, student_3, student_4]}
     )
     assert response.status_code == 201
-    assert response.json() == {"students_added_counter": 3}
+    assert response.json() == {"students_added_counter": 4}
 
 
 @pytest.mark.asyncio
-async def test_get_3_students_list(async_client: AsyncClient):
+async def test_get_4_students_list(async_client: AsyncClient):
     response = await async_client.get(url="student/")
     assert response.status_code == 200
     assert response.json() == {
@@ -70,13 +86,16 @@ async def test_get_3_students_list(async_client: AsyncClient):
                 "course": 1,
                 "group": "PGS-1",
                 "surname": "Иванов",
-                "name": "Иван Иванович",
+                "name": "Иван",
+                "second_name": "Иванович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "11-1111",
                 "student_book": "11-A-11111",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
             {
@@ -85,13 +104,16 @@ async def test_get_3_students_list(async_client: AsyncClient):
                 "course": 2,
                 "group": "IGES-2",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "22-2222",
                 "student_book": "22-B-22222",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
             {
@@ -100,14 +122,35 @@ async def test_get_3_students_list(async_client: AsyncClient):
                 "course": 3,
                 "group": "PGS-3",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "33-3333",
                 "student_book": "33-C-33333",
                 "role": "Admin",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": "999",
+            },
+            {
+                "id": response.json()["data"][3]["id"],
+                "institute": "PGS",
+                "course": 4,
+                "group": "PGS-3",
+                "surname": "Дмитров",
+                "name": "Дмитрий",
+                "second_name": None,
+                "sex": "муж.",
+                "financing_form": "бюджет",
+                "profcard": "44-4444",
+                "student_book": "44-D-44444",
+                "role": "User",
+                "MP_case": None,
+                'birthdate': None,
+                'comment': None,
+                "telegram_id": None,
             },
         ]
     }
@@ -126,13 +169,16 @@ async def test_get_by_surname(async_client: AsyncClient):
                 "course": 1,
                 "group": "PGS-1",
                 "surname": "Иванов",
-                "name": "Иван Иванович",
+                "name": "Иван",
+                "second_name": "Иванович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "11-1111",
                 "student_book": "11-A-11111",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
         ]
@@ -152,13 +198,16 @@ async def test_get_by_surname(async_client: AsyncClient):
                 "course": 2,
                 "group": "IGES-2",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "22-2222",
                 "student_book": "22-B-22222",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
             {
@@ -167,13 +216,16 @@ async def test_get_by_surname(async_client: AsyncClient):
                 "course": 3,
                 "group": "PGS-3",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "33-3333",
                 "student_book": "33-C-33333",
                 "role": "Admin",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": "999",
             },
         ]
@@ -193,13 +245,16 @@ async def test_get_by_profcard(async_client: AsyncClient):
                 "course": 1,
                 "group": "PGS-1",
                 "surname": "Иванов",
-                "name": "Иван Иванович",
+                "name": "Иван",
+                "second_name": "Иванович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "11-1111",
                 "student_book": "11-A-11111",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
         ]
@@ -225,13 +280,16 @@ async def test_get_by_studentbook(async_client: AsyncClient):
                 "course": 2,
                 "group": "IGES-2",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "22-2222",
                 "student_book": "22-B-22222",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
         ]
@@ -251,13 +309,16 @@ async def test_get_by_telegram_id(async_client: AsyncClient):
                 "course": 3,
                 "group": "PGS-3",
                 "surname": "Петров",
-                "name": "Иван Петрович",
+                "name": "Иван",
+                "second_name": "Петрович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "33-3333",
                 "student_book": "33-C-33333",
                 "role": "Admin",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": "999",
             },
         ]
@@ -294,13 +355,16 @@ async def test_update_student(async_client: AsyncClient):
                 "course": 3,
                 "group": "PGS-3",
                 "surname": "Иванов",
-                "name": "Иван Иванович",
+                "name": "Иван",
+                "second_name": "Иванович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "11-1111",
                 "student_book": "11-A-11111",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
         ]
@@ -320,13 +384,16 @@ async def test_check_update_student(async_client: AsyncClient):
                 "course": 3,
                 "group": "PGS-3",
                 "surname": "Иванов",
-                "name": "Иван Иванович",
+                "name": "Иван",
+                "second_name": "Иванович",
                 "sex": "муж.",
                 "financing_form": "бюджет",
                 "profcard": "11-1111",
                 "student_book": "11-A-11111",
                 "role": "User",
                 "MP_case": None,
+                'birthdate': None,
+                'comment': None,
                 "telegram_id": None,
             },
         ]
@@ -365,6 +432,11 @@ async def test_delete_2_students(async_client: AsyncClient):
     response = await async_client.delete(url=f"student/{student_id}")
     assert response.status_code == 200
     required_profcard = "33-3333"
+    student = await async_client.get(url=f"student/by_profcard/{required_profcard}")
+    student_id = student.json()["data"][0]["id"]
+    response = await async_client.delete(url=f"student/{student_id}")
+    assert response.status_code == 200
+    required_profcard = "44-4444"
     student = await async_client.get(url=f"student/by_profcard/{required_profcard}")
     student_id = student.json()["data"][0]["id"]
     response = await async_client.delete(url=f"student/{student_id}")

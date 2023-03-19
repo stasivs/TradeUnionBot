@@ -3,6 +3,7 @@ from os import environ
 from bson import ObjectId
 from fastapi import APIRouter, Body, Depends, status
 from fastapi.encoders import jsonable_encoder
+from fastapi.responses import FileResponse
 
 from services.student import StudentService, get_student_service
 from models.student import (
@@ -169,3 +170,15 @@ async def delete_student(
         student_service: StudentService = Depends(get_student_service),
 ) -> dict:
     return {'data': await student_service.delete_student(student_id=student_id)}
+
+
+@router.get(
+    path='/get_data',
+    response_description="All student data file retrieved",
+    status_code=status.HTTP_200_OK,
+    response_model=None,
+)
+async def get_all_data_file(
+        student_service: StudentService = Depends(get_student_service),
+) -> FileResponse:
+    return await student_service.get_all_data_file()
