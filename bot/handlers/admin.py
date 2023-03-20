@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from bot_run import bot
+from bot_init import bot
 from utils import keyboards, request_funcs
 from utils.check_role import admin_require
 from utils.lang_parser import get_phrase
@@ -64,9 +64,8 @@ async def obtain_value(message: types.Message, state: FSMContext) -> None:
                                    get_phrase('stud_info',
                                               student['group'] if student['group'] else "Отсутствует",
                                               student['surname'] if student['surname'] else "Отсутствует",
-                                              student['name'].split()[0] if student['name'] else "Отсутствует",
-                                              ' '.join(student['name'].split()[1:])
-                                              if len(student['name'].split()) > 1 else "Отсутствует",
+                                              student['name'] if student['name'] else "Отсутствует",
+                                              student['second_name'] if student['second_name'] else "Отсутствует",
                                               student['birthdate'] if student['birthdate'] else "Отсутствует",
                                               student['sex'] if student['sex'] else "Отсутствует",
                                               student['financing_form'] if student['financing_form'] else "Отсутствует",

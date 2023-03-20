@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 from config import URL
@@ -56,6 +58,9 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
     """Отправляем id в базе данных пользователя, название поля для редактирования и его новое значение."""
 
     urls_dict = {
+        'Фамилия студента': 'surname',
+        'Имя студента': 'name',
+        'Отчество студента': 'second_name',
         'Проф карта': 'profcard',
         'Причина мат помощи': 'MP_case',
         'Студенческий билет': 'student_book',
@@ -99,3 +104,10 @@ async def add_many_student_data(data: list[dict]) -> dict | None:
     if not students_added:
         return None
     return {"students_added_counter": students_added}
+
+
+async def get_database():
+    response = requests.get(f'{URL}/student/get_data')
+    if response.status_code == 200:
+        return response
+    return {}

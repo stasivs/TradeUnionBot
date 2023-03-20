@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from bot_run import bot
+from bot_init import bot
 from utils import keyboards, request_funcs
 from utils.check_role import super_admin_require, redis
 from utils.csv_parser import csv_parser
@@ -44,25 +44,14 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
     async with state.proxy() as data:
         data['pole_name'] = message.text
 
-    if data['pole_name'] == 'Проф карта':
-        await bot.send_message(message.from_user.id, get_phrase('enter_new_profcard'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
-
-    elif data['pole_name'] == 'Студенческий билет':
-        await bot.send_message(message.from_user.id, get_phrase('enter_new_student_book'),
+    if data['pole_name'] in ['Проф карта', 'Студенческий билет', 'Телеграм ID', 'Комментарий',
+                             'Фамилия студента', 'Имя студента', 'Отчество студента']:
+        await bot.send_message(message.from_user.id, get_phrase('enter_new_value', data['pole_name']),
                                reply_markup=keyboards.CANCEL_KEYBOARD)
 
     elif data['pole_name'] == 'Роль пользователя':
         await bot.send_message(message.from_user.id, get_phrase('enter_new_role'),
                                reply_markup=keyboards.ROLE_KEYBOARD)
-
-    elif data['pole_name'] == 'Телеграм ID':
-        await bot.send_message(message.from_user.id, get_phrase('enter_new_tg_id'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
-
-    elif data['pole_name'] == 'Комментарий':
-        await bot.send_message(message.from_user.id, get_phrase('enter_new_comment'),
-                               reply_markup=keyboards.CANCEL_KEYBOARD)
 
     else:
         await bot.send_message(message.from_user.id, get_phrase('not_such_pole'),
@@ -189,6 +178,19 @@ async def obtain_image_id(message: types.Message, state: FSMContext) -> None:
     await state.finish()
 
 
+@super_admin_require
+async def database_provide(message: types.Message, state: FSMContext) -> None:
+    response = await request_funcs.get_database()
+
+    if response:
+        await bot.send_document(message.from_user.id, document=('database.csv', response.content),
+                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+
+    else:
+        await bot.send_message(message.from_user.id, get_phrase('get_database_mistake'),
+                               reply_markup=await keyboards.keyboard_choice(message.from_user.id))
+
+
 def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_callback_query_handler(redact_student_info, lambda x: x.data and x.data.startswith('redact '),
                                        state='*')
@@ -205,3 +207,4 @@ def register_super_admin_handlers(dp: Dispatcher) -> None:
     dp.register_message_handler(obtain_institute_name, content_types=['text'],
                                 state=RedactScheduleFSM.waiting_institute_name)
     dp.register_message_handler(obtain_image_id, content_types=['photo'], state=RedactScheduleFSM.waiting_image_id)
+    dp.register_message_handler(database_provide, commands=['get_the_current_database'])

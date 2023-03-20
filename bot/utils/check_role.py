@@ -4,9 +4,6 @@ from redis import asyncio as aioredis
 from utils.request_funcs import get_student_info
 from config import EXPIRE_VALUE
 
-# redis = aioredis.from_url("redis://localhost", encoding="utf-8", decode_responses=True)
-
-
 redis = aioredis.from_url("redis://redis", encoding="utf-8", decode_responses=True)
 
 

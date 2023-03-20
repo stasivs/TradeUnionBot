@@ -1,5 +1,3 @@
-import logging
-
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 from utils import check_role
@@ -8,6 +6,8 @@ BUTTON_GET_INFO = KeyboardButton('Поиск по базе данных')
 BUTTON_PROF_ID = KeyboardButton('Проф карта')
 BUTTON_STUD_NUMBER = KeyboardButton('Студенческий билет')
 BUTTON_SURNAME = KeyboardButton('Фамилия студента')
+BUTTON_NAME = KeyboardButton('Имя студента')
+BUTTON_SECOND_NAME = KeyboardButton('Отчество студента')
 BUTTON_FIO = KeyboardButton('ФИО студента')
 BUTTON_REASON = KeyboardButton('Причина мат помощи')
 BUTTON_ROLE = KeyboardButton('Роль пользователя')
@@ -50,7 +50,9 @@ BUTTON_MARRIED_STUDENT = KeyboardButton('Заключение брака')
 BUTTON_PREGNANT_STUDENT = KeyboardButton('Беременность')
 BUTTON_NEEDY_FAMILY = KeyboardButton('Малоимущая семья')
 BUTTON_HEAVY_DISEASE = KeyboardButton('Тяжёлое заболевание')
+BUTTON_RELATIVE_LOST = KeyboardButton('Потеря близкого родственника')
 BUTTON_EMERGENCY_SITUATION = KeyboardButton('Чрезвычайная ситуация')
+BUTTON_PARENTS_LOST = KeyboardButton('Потеря родителей')
 
 BUTTON_WHAT_IS_MATHELP = KeyboardButton('Что такое материальная помощь?')
 BUTTON_WHAT_IS_MATSUPPORT = KeyboardButton('Что такое материальная поддержка?')
@@ -85,7 +87,7 @@ MATHELP_DOCS_INLINE_KEYBOARD = InlineKeyboardMarkup()
 
 ADMIN_KEYBOARD.add(BUTTON_GET_INFO)
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_ROLE).add(BUTTON_TG_ID) \
-    .add(BUTTON_COMMENT).add(BUTTON_CANCEL)
+    .add(BUTTON_COMMENT).add(BUTTON_SURNAME).add(BUTTON_NAME).add(BUTTON_SECOND_NAME).add(BUTTON_CANCEL)
 INFO_POLE_KEYBOARD.add(BUTTON_SURNAME).add(BUTTON_FIO).add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_CANCEL)
 ROLE_KEYBOARD.add(BUTTON_USER).add(BUTTON_ADMIN).add(BUTTON_SUPERADMIN).add(BUTTON_CANCEL)
 APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
@@ -98,7 +100,7 @@ REASONS_KEYBOARD.add(BUTTON_DORMITORY_STUDENT).insert(BUTTON_PENSIONER_PARENTS).
     .add(BUTTON_ORPHAN_STUDENT).insert(BUTTON_LARGE_FAMILY).add(BUTTON_MILITARY_STUDENT) \
     .insert(BUTTON_PREGNANT_STUDENT).add(BUTTON_MARRIED_STUDENT).insert(BUTTON_HEAVY_DISEASE) \
     .add(BUTTON_MILITARY_INJURED).insert(BUTTON_EMERGENCY_SITUATION).add(BUTTON_NEEDY_FAMILY) \
-    .insert(BUTTON_NOTFULL_FAMILY).add(BUTTON_CANCEL)
+    .insert(BUTTON_NOTFULL_FAMILY).add(BUTTON_RELATIVE_LOST).insert(BUTTON_PARENTS_LOST).add(BUTTON_CANCEL)
 QUESTIONS_KEYBOARD.add(BUTTON_WHAT_IS_MATHELP).add(BUTTON_WHAT_IS_MATSUPPORT).add(BUTTON_WHAT_IS_SOCSTIP) \
     .add(BUTTON_HOW_GET_SOCSTIP).add(BUTTON_HOW_PAY_PROFVZNOS).add(BUTTON_WHAT_IS_IKG) \
     .add(BUTTON_CHANGE_PASS_QUESTION).add(BUTTON_PROFCOME_TIME).add(BUTTON_CANCEL)
@@ -112,7 +114,6 @@ MATHELP_DOCS_INLINE_KEYBOARD.add(INLINE_BUTTON_INN).add(INLINE_BUTTON_BLANK)
 
 async def keyboard_choice(user_id: int) -> ReplyKeyboardMarkup:
     if await check_role.check_student_role(user_id) == 'SuperAdmin':
-        logging.warning(f"SuperAdmin is online, id: {user_id}")
         return ADMIN_KEYBOARD
 
     elif await check_role.check_student_role(user_id) == 'Admin':

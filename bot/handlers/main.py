@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext, filters
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
 from utils import keyboards, request_funcs
-from bot_run import bot
+from bot_init import bot
 from utils.lang_parser import get_phrase
 from utils.check_role import super_admin_require
 
@@ -69,19 +69,26 @@ async def registration(message: types.Message, state: FSMContext) -> None:
 
 
 async def obtain_stud_info(message: types.Message, state: FSMContext) -> None:
-    """Отлавливает номер студенческого при запущенном диалоге RegistrationFSM, вносит ин-фу в бд."""
+    """Отлавливает номер студенческого при запущенном диалоге RegistrationFSM, проверяет на наличие
+    такого студенческого в бд, проверяет, что это не админ, вносит ин-фу в бд."""
 
     stud_id = message.text.title()
     stud_info = await request_funcs.get_student_info("Студенческий билет", stud_id)
 
     if isinstance(stud_info, list):
-        async with state.proxy() as data:
-            data['bd_id'] = stud_info[0]['id']
+        if stud_info[0]['role'] in ['Admin', 'SuperAdmin']:
+            await bot.send_message(message.from_user.id, get_phrase('try_of_admin_registration_mistake'),
+                                   reply_markup=keyboards.REGISTRATION_KEYBOARD)
+            await state.finish()
+        else:
+            async with state.proxy() as data:
+                data['bd_id'] = stud_info[0]['id']
 
-        student_fio = stud_info[0]['surname'] + " " + stud_info[0]['name']
-        await bot.send_message(message.from_user.id, get_phrase('registration_confirm_require', student_fio),
-                               reply_markup=keyboards.APPROVAL_KEYBOARD)
-        await RegistrationFSM.next()
+            student_fio = ' '.join(
+                [stud_info[0]['surname'], stud_info[0]['name'], stud_info[0]['second_name']])  # возможна ошибка
+            await bot.send_message(message.from_user.id, get_phrase('registration_confirm_require', student_fio),
+                                   reply_markup=keyboards.APPROVAL_KEYBOARD)
+            await RegistrationFSM.next()
 
     else:
         await bot.send_message(message.from_user.id, get_phrase('input_mistake_phrase'))

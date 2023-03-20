@@ -2,7 +2,7 @@ from aiogram import Dispatcher, types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 
-from bot_run import bot
+from bot_init import bot
 from utils import keyboards, request_funcs
 from utils.lang_parser import get_phrase
 
@@ -84,7 +84,9 @@ async def obtain_reason_name(message: types.Message, state: FSMContext) -> None:
         'Беременность': 'pregnant_student_docs',
         'Малоимущая семья': 'needy_family_docs',
         'Тяжёлое заболевание': 'heavy_disease_docs',
-        'Чрезвычайная ситуация': 'emergency_situation_docs'
+        'Потеря близкого родственника': 'relative_lost_docs',
+        'Чрезвычайная ситуация': 'emergency_situation_docs',
+        'Потеря родителей': 'parents_lost_docs',
     }
 
     try:
