@@ -3,8 +3,8 @@ services:
   nginx:
     image: nginx:alpine
     restart: always
-    ports:
-      - '80:80'
+    #    ports:
+    #      - '80:80'
     volumes:
       - ./nginx_config:/etc/nginx/conf.d
     depends_on:

@@ -120,7 +120,7 @@ async def obtain_confirm(message: types.Message, state: FSMContext) -> None:
 
 def register_main_handlers(dp: Dispatcher) -> None:
     """Регистрация основных хендлеров."""
-    dp.register_message_handler(cancel_handler, filters.Text(equals='отмена', ignore_case=True), state='*')
+    dp.register_message_handler(cancel_handler, lambda x: x.text in ['Отмена', 'В главное меню'], state='*')
     dp.register_message_handler(greeting, commands=["start"], state="*")
     dp.register_message_handler(super_admin_help, commands=['help'], state="*")
     dp.register_message_handler(registration, text=['Регистрация'])

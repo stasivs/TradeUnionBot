@@ -65,9 +65,12 @@ async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
     """Отлавливает новое значение для ранее выбранного поля, вносит в state.proxy()."""
 
     async with state.proxy() as data:
-        data['new_value'] = message.text
+        if data['pole_name'] != 'Комментарий':
+            data['new_value'] = message.text.title()
+        else:
+            data['new_value'] = message.text
 
-    await bot.send_message(message.from_user.id, get_phrase('ask_confirm', data["pole_name"], data["new_value"]),
+    await bot.send_message(message.from_user.id, get_phrase('ask_confirm', data['pole_name'], data['new_value']),
                            reply_markup=keyboards.APPROVAL_KEYBOARD)
     await RedactStudentInfoFSM.next()
 
