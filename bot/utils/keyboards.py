@@ -21,8 +21,8 @@ BUTTON_SUPERADMIN = KeyboardButton('SuperAdmin')
 
 BUTTON_GET_PROFCOME_SCHEDULE = KeyboardButton('Узнать расписание приёма документов')
 BUTTON_GET_PROF_ID = KeyboardButton('Узнать номер своей профкарты')
-BUTTON_GET_MAT_HELP_DOCS = KeyboardButton('Список документов для материальной помощи')
-BUTTON_GET_MAT_SUPPORT_DOCS = KeyboardButton('Список документов для материальной поддержки')
+BUTTON_GET_MAT_HELP_DOCS = KeyboardButton('Материальная помощь - перечень документов')
+BUTTON_GET_MAT_SUPPORT_DOCS = KeyboardButton('Материальная поддержка - перечень документов')
 BUTTON_FAQ = KeyboardButton('Часто задаваемые вопросы')
 BUTTON_REGISTRATION = KeyboardButton('Регистрация')
 

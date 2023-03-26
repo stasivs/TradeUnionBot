@@ -131,7 +131,6 @@ async def obtain_mat_help_reason_name(message: types.Message, state: FSMContext)
     await state.finish()
 
 
-#######################
 class GetMatSupportDocsInfoFSM(StatesGroup):
     """Машина состояний - диалог предоставления ин-фы о причинах мат поддержки."""
     waiting_reason_name = State()
@@ -141,7 +140,7 @@ async def get_mat_support_docs_info(message: types.Message) -> None:
     """ Отлавливает команду о предоставлении документов, запускает соответствующий диалог. """
 
     await bot.send_message(message.from_user.id, get_phrase('choose_mat_support_reason_name'),
-                           reply_markup=keyboards.MAT_SUPPORT_REASONS_KEYBOARD)  ###########################???????????
+                           reply_markup=keyboards.MAT_SUPPORT_REASONS_KEYBOARD)
     await GetMatSupportDocsInfoFSM.waiting_reason_name.set()
 
 
@@ -174,9 +173,6 @@ async def obtain_mat_support_reason_name(message: types.Message, state: FSMConte
                                reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 
     await state.finish()
-
-
-#######################
 
 
 class FrAskQuestFSM(StatesGroup):
@@ -239,12 +235,12 @@ def register_student_handlers(dp: Dispatcher) -> None:
                                 state=GetProfcomeScheduleFSM.waiting_institute_name)
 
     dp.register_message_handler(get_mat_help_docs_info,
-                                text=['Список документов для материальной помощи'])
+                                text=['Материальная помощь - перечень документов'])
     dp.register_message_handler(obtain_mat_help_reason_name, content_types=['text'],
                                 state=GetMatHelpDocsInfoFSM.waiting_reason_name)
 
     dp.register_message_handler(get_mat_support_docs_info,
-                                text=['Список документов для материальной поддержки'])
+                                text=['Материальная поддержка - перечень документов'])
     dp.register_message_handler(obtain_mat_support_reason_name, content_types=['text'],
                                 state=GetMatSupportDocsInfoFSM.waiting_reason_name)
 
