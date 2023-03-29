@@ -66,7 +66,9 @@ async def redact_student_info(bd_id: str, pole_name: str, new_value: str) -> lis
         'Студенческий билет': 'student_book',
         'Телеграм ID': 'telegram_id',
         'Роль пользователя': 'role',
-        'Комментарий': 'comment'
+        'Комментарий': 'comment',
+        'Форма финансирования': 'financing_form',
+        'ИКГ': 'group'
     }
 
     pole = urls_dict[pole_name]

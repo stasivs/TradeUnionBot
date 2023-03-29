@@ -13,11 +13,15 @@ BUTTON_REASON = KeyboardButton('Причина мат помощи')
 BUTTON_ROLE = KeyboardButton('Роль пользователя')
 BUTTON_TG_ID = KeyboardButton('Телеграм ID')
 BUTTON_COMMENT = KeyboardButton('Комментарий')
+BUTTON_FINANCING_FORM = KeyboardButton('Форма финансирования')
+BUTTON_IKG = KeyboardButton('ИКГ')
 BUTTON_YES = KeyboardButton('Да')
 BUTTON_NO = KeyboardButton('Нет')
 BUTTON_USER = KeyboardButton('User')
 BUTTON_ADMIN = KeyboardButton('Admin')
 BUTTON_SUPERADMIN = KeyboardButton('SuperAdmin')
+BUTTON_BUDGET = KeyboardButton('бюджет')
+BUTTON_CONTRACT = KeyboardButton('контракт')
 
 BUTTON_GET_PROFCOME_SCHEDULE = KeyboardButton('Узнать расписание приёма документов')
 BUTTON_GET_PROF_ID = KeyboardButton('Узнать номер своей профкарты')
@@ -79,6 +83,7 @@ CHANGE_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 INFO_POLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 APPROVAL_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 ROLE_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
+FINANCING_FORM_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 
 STUDENT_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
 INSTITUTE_NAME_KEYBOARD = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -102,12 +107,15 @@ VK_GROUP_INLINE_KEYBOARD = InlineKeyboardMarkup()
 ADMIN_KEYBOARD.add(BUTTON_GET_INFO)
 
 CHANGE_POLE_KEYBOARD.add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER).add(BUTTON_ROLE).add(BUTTON_TG_ID) \
-    .add(BUTTON_COMMENT).add(BUTTON_SURNAME).add(BUTTON_NAME).add(BUTTON_SECOND_NAME).add(BUTTON_TO_MAIN_MENU)
+    .add(BUTTON_COMMENT).add(BUTTON_SURNAME).add(BUTTON_NAME).add(BUTTON_SECOND_NAME).add(BUTTON_IKG) \
+    .add(BUTTON_FINANCING_FORM).add(BUTTON_TO_MAIN_MENU)
 
 INFO_POLE_KEYBOARD.add(BUTTON_SURNAME).add(BUTTON_FIO).add(BUTTON_PROF_ID).add(BUTTON_STUD_NUMBER) \
     .add(BUTTON_TO_MAIN_MENU)
 
-ROLE_KEYBOARD.add(BUTTON_USER).add(BUTTON_ADMIN).add(BUTTON_SUPERADMIN).add(BUTTON_TO_MAIN_MENU)
+ROLE_KEYBOARD.add(BUTTON_USER).add(BUTTON_ADMIN).add(BUTTON_SUPERADMIN).add(BUTTON_CANCEL)
+
+FINANCING_FORM_KEYBOARD.add(BUTTON_BUDGET).add(BUTTON_CONTRACT).add(BUTTON_CANCEL)
 
 APPROVAL_KEYBOARD.add(BUTTON_YES).insert(BUTTON_NO)
 

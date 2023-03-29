@@ -131,7 +131,12 @@ def register_main_handlers(dp: Dispatcher) -> None:
 
 
 async def wtf_answering(message: types.Message, state: FSMContext) -> None:
-    """Ответ на непонятные сообщения"""
+    """Ответ на непонятные сообщения, прекращает текущий диалог, выводит главное меню"""
+
+    current_state = await state.get_state()
+    if current_state is not None:
+        await state.finish()
+
     await bot.send_message(message.from_user.id, get_phrase('not_understand'),
                            reply_markup=await keyboards.keyboard_choice(message.from_user.id))
 

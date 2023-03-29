@@ -33,7 +33,7 @@ async def write_csv(data: list[list]) -> tuple:
     os.makedirs(dir_name, exist_ok=True)
     path = Path(dir_name, file_name)
     with open(path, "w+") as file:
-        writer = csv.writer(file)
+        writer = csv.writer(file, delimiter=';')
         writer.writerow(
             [
                 "Институт",

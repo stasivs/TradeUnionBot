@@ -45,13 +45,17 @@ async def obtain_change_pole(message: types.Message, state: FSMContext) -> None:
         data['pole_name'] = message.text
 
     if data['pole_name'] in ['Проф карта', 'Студенческий билет', 'Телеграм ID', 'Комментарий',
-                             'Фамилия студента', 'Имя студента', 'Отчество студента']:
+                             'Фамилия студента', 'Имя студента', 'Отчество студента', 'ИКГ']:
         await bot.send_message(message.from_user.id, get_phrase('enter_new_value', data['pole_name']),
                                reply_markup=keyboards.CANCEL_KEYBOARD)
 
     elif data['pole_name'] == 'Роль пользователя':
-        await bot.send_message(message.from_user.id, get_phrase('enter_new_role'),
+        await bot.send_message(message.from_user.id, get_phrase('enter_new_value', data['pole_name']),
                                reply_markup=keyboards.ROLE_KEYBOARD)
+
+    elif data['pole_name'] == 'Форма финансирования':
+        await bot.send_message(message.from_user.id, get_phrase('enter_new_value', data['pole_name']),
+                               reply_markup=keyboards.FINANCING_FORM_KEYBOARD)
 
     else:
         await bot.send_message(message.from_user.id, get_phrase('not_such_pole'),
@@ -65,7 +69,7 @@ async def obtain_new_value(message: types.Message, state: FSMContext) -> None:
     """Отлавливает новое значение для ранее выбранного поля, вносит в state.proxy()."""
 
     async with state.proxy() as data:
-        if data['pole_name'] != 'Комментарий':
+        if data['pole_name'] not in ['Комментарий', 'Роль пользователя', 'Форма финансирования', 'ИКГ']:
             data['new_value'] = message.text.title()
         else:
             data['new_value'] = message.text
