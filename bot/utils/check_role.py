@@ -11,7 +11,7 @@ def admin_require(func):
     """Декоратор - проверка на админа"""
 
     async def wrapper(message: types.Message):
-        if await check_student_role(message.from_user.id) in ['Admin', 'SuperAdmin']:
+        if await check_student_role(message.from_user.id) in ["Admin", "SuperAdmin"]:
             await func(message)
 
     return wrapper
@@ -21,7 +21,7 @@ def super_admin_require(func):
     """Декоратор - проверка на суперадмина"""
 
     async def wrapper(message: types.Message, state=None):
-        if await check_student_role(message.from_user.id) == 'SuperAdmin':
+        if await check_student_role(message.from_user.id) == "SuperAdmin":
             if state:
                 await func(message, state)
             else:
@@ -38,10 +38,10 @@ async def check_student_role(telegram_id: int) -> str:
     role = await redis.get(telegram_id)
 
     if not role:
-        stud_info = await get_student_info('Телеграм ID', telegram_id)
+        stud_info = await get_student_info(pole_name="Телеграм ID", value=telegram_id)
         if isinstance(stud_info, list):
-            role = stud_info[0]['role']
+            role = stud_info[0]["role"]
         else:
-            return 'NotFound'
+            return "NotFound"
         await redis.set(telegram_id, role, EXPIRE_VALUE)
     return role
