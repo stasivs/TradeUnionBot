@@ -3,11 +3,6 @@ import requests
 from config import URL
 
 
-def get_request_key() -> str:
-    """Получаем ключ для последующих запросов."""
-    pass
-
-
 async def get_profcome_schedule(course_name: str) -> dict:
     """Получаем расписание приёма доков для института."""
 

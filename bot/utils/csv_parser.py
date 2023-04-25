@@ -1,12 +1,8 @@
-import logging
-
-
 async def csv_parser(data: str) -> list[dict]:
     data_list = []
     data_split = data.lstrip(";\n\r").replace("\r", "").split("\n")[1:-1]
     for string in data_split:
         student_data = [val if val else None for val in string.split(";")]
-        logging.warning(student_data)
         surname, name, *second_name = student_data[3].split()
         parsed_student_data = {
             "institute": student_data[0],
@@ -26,16 +22,16 @@ async def csv_parser(data: str) -> list[dict]:
             "telegram_id": student_data[12],
         }
         if not all(
-            [
-                parsed_student_data["institute"],
-                parsed_student_data["course"],
-                parsed_student_data["group"],
-                parsed_student_data["surname"],
-                parsed_student_data["name"],
-                parsed_student_data["sex"],
-                parsed_student_data["financing_form"],
-                parsed_student_data["role"],
-            ]
+                [
+                    parsed_student_data["institute"],
+                    parsed_student_data["course"],
+                    parsed_student_data["group"],
+                    parsed_student_data["surname"],
+                    parsed_student_data["name"],
+                    parsed_student_data["sex"],
+                    parsed_student_data["financing_form"],
+                    parsed_student_data["role"],
+                ]
         ):
             continue
         parsed_student_data = {

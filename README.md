@@ -14,7 +14,7 @@ docker-compose up
 Тесты запускаются по команде:
 
 ```sh
-docker-compose -f docker-compose-test.yaml up
+docker-compose -f docker-compose-tests.yaml up
 ```
 
 ## Бот
